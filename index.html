@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>LABE - Liga Amadora Batataense de Esportes</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Liga Amadora Batataense de Esportes - O melhor app de futebol amador do Brasil">
+    <meta name="theme-color" content="#2D3B69">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="LABE">
+    
+    <!-- CDN Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'labe-primary': '#2D3B69',
+                        'labe-secondary': '#DC2626',
+                        'labe-accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom styles */
+        @media (prefers-color-scheme: dark) { html { color-scheme: dark; } }
+        .battery-saver * { animation: none !important; transition: none !important; }
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading { 0% { left: -100%; } 100% { left: 100%; } }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #2D3B69; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #1e2a4a; }
+        button:focus, input:focus, select:focus { outline: 2px solid #2D3B69; outline-offset: 2px; }
+        @media (max-width: 768px) {
+            input[type="text"], input[type="email"], input[type="password"], textarea, select { font-size: 16px !important; }
+            button, .nav-btn { min-height: 44px; min-width: 44px; }
+        }
+        @keyframes pulse-custom { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .pulse-custom { animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">    <!-- Header -->
+    <header class="bg-labe-primary shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-futbol text-labe-primary text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-white text-2xl font-bold">LABE</h1>
+                        <p class="text-blue-200 text-sm">Liga Amadora Batataense de Esportes</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="loginBtn" class="bg-labe-secondary hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                    <div class="text-white text-sm">
+                        <div>Temporada 2024</div>
+                        <div class="text-blue-200">Rodada 15</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-8 overflow-x-auto">
+                <button class="nav-btn py-4 px-2 border-b-2 border-labe-secondary text-labe-secondary font-medium whitespace-nowrap" data-section="home">
+                    <i class="fas fa-home mr-2"></i>Início
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="tabela">
+                    <i class="fas fa-trophy mr-2"></i>Classificação
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="jogos">
+                    <i class="fas fa-calendar mr-2"></i>Jogos
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="social">
+                    <i class="fas fa-users mr-2"></i>Social
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="transmissao">
+                    <i class="fas fa-broadcast-tower mr-2"></i>Live
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Login Modal -->
+        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Login no LABE</h3>
+                        <button id="closeLogin" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="loginForm">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Tipo de Usuário</label>
+                                <select id="userType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base">
+                                    <option value="visitante">Visitante</option>
+                                    <option value="clube">Representante de Clube</option>
+                                    <option value="mesario">Mesário</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                            <div id="clubeSelect" class="hidden">
+                                <label class="block text-sm font-medium mb-2">Clube</label>
+                                <select id="clube" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base">
+                                    <option value="atletico-batatais">Atlético Batatais</option>
+                                    <option value="guarani">Guarani FC</option>
+                                    <option value="independente">Independente</option>
+                                    <option value="palmeiras">Palmeiras</option>
+                                    <option value="santos">Santos FC</option>
+                                    <option value="unidos">Unidos da Vila</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Usuário</label>
+                                <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base" placeholder="Digite seu usuário">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Senha</label>
+                                <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base" placeholder="Digite sua senha">
+                            </div>
+                            <button type="submit" class="w-full bg-labe-primary hover:bg-blue-800 text-white py-2 rounded-lg transition-colors">
+                                Entrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Section -->
+        <section id="home" class="section">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Featured News -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h2 class="text-2xl font-bold mb-6 text-labe-primary">Destaques da LABE</h2>
+                        <div class="space-y-6">
+                            <article class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                                <div class="bg-labe-secondary text-white px-3 py-1 rounded-full text-sm inline-block mb-3">URGENTE</div>
+                                <h3 class="text-xl font-semibold mb-2">Clássico Atlético x Guarani define liderança</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">O confronto desta tarde promete ser decisivo para o título da temporada 2024. Ambas as equipes chegam empatadas na liderança com 42 pontos.</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>Há 2 horas</span>
+                                </div>
+                            </article>
+                            
+                            <article class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                                <h3 class="text-lg font-semibold mb-2">Mercado de Transferências movimentado</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">Santos FC oficializa contratação de atacante artilheiro. Jogador estava no Independente e marca época na liga.</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>Há 5 horas</span>
+                                </div>
+                            </article>
+
+                            <article>
+                                <h3 class="text-lg font-semibold mb-2">Nova regulamentação para arbitragem</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">Confederação anuncia mudanças no sistema de arbitragem para tornar os jogos mais justos e dinâmicos.</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>Há 1 dia</span>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+                        <h3 class="text-lg font-semibold mb-4">Estatísticas Rápidas</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">Artilheiro</span>
+                                <div class="text-right">
+                                    <div class="font-semibold">Carlos Silva</div>
+                                    <div class="text-sm text-gray-500">18 gols</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">Líder</span>
+                                <div class="text-right">
+                                    <div class="font-semibold">Atlético Batatais</div>
+                                    <div class="text-sm text-gray-500">42 pontos</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">Próximo Jogo</span>
+                                <div class="text-right">
+                                    <div class="font-semibold">Hoje 15h</div>
+                                    <div class="text-sm text-gray-500">Atlético x Guarani</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- League Position Widget -->
+                    <div class="bg-gradient-to-br from-labe-primary to-blue-800 rounded-lg shadow-lg p-6 text-white">
+                        <h3 class="text-lg font-semibold mb-4">Classificação</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span>1º Atlético Batatais</span>
+                                <span class="font-bold">42</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>2º Guarani FC</span>
+                                <span class="font-bold">42</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>3º Santos FC</span>
+                                <span class="font-bold">38</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2 rounded-lg transition-colors">
+                            Ver Tabela Completa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Classificação Section -->
+        <section id="tabela" class="section hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-6 text-labe-primary">Classificação Geral</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="text-left py-3 px-4">Pos</th>
+                                <th class="text-left py-3 px-4">Clube</th>
+                                <th class="text-center py-3 px-4">PG</th>
+                                <th class="text-center py-3 px-4">J</th>
+                                <th class="text-center py-3 px-4">V</th>
+                                <th class="text-center py-3 px-4">E</th>
+                                <th class="text-center py-3 px-4">D</th>
+                                <th class="text-center py-3 px-4">GP</th>
+                                <th class="text-center py-3 px-4">GC</th>
+                                <th class="text-center py-3 px-4">SG</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaClassificacao">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Jogos Section -->
+        <section id="jogos" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Próximos Jogos</h3>
+                    <div id="proximosJogos" class="space-y-4">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Resultados Recentes</h3>
+                    <div id="resultadosRecentes" class="space-y-4">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social/Timeline Section -->
+        <section id="social" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Timeline Principal -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold mb-6 text-labe-primary">Timeline LABE</h3>
+                        
+                        <!-- Timeline Posts -->
+                        <div id="timelinePosts" class="space-y-6">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar Social -->
+                <div>
+                    <!-- Chat de Clubes -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+                        <h3 class="text-lg font-semibold mb-4 text-labe-primary">Chat dos Clubes</h3>
+                        <div id="chatMensagens" class="space-y-3 max-h-64 overflow-y-auto">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            <input type="text" id="mensagemInput" placeholder="Digite sua mensagem..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base">
+                            <button onclick="enviarMensagem()" class="bg-labe-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Galeria de Fotos -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-labe-primary">Galeria de Fotos</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
+                                <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                    <i class="fas fa-camera text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
+                                <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                    <i class="fas fa-image text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
+                                <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                    <i class="fas fa-trophy text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
+                                <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                    <i class="fas fa-users text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-labe-secondary hover:bg-red-700 text-white py-2 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Adicionar Foto
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>        <!-- Transmissão ao Vivo Section -->
+        <section id="transmissao" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-semibold text-labe-primary">🔴 AO VIVO: Atlético x Guarani</h3>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm text-red-500 font-semibold">LIVE</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Placar em Tempo Real -->
+                        <div class="bg-gradient-to-r from-labe-primary to-blue-800 rounded-lg p-6 text-white mb-6 placar-tempo-real">
+                            <div class="text-center">
+                                <div class="text-sm mb-2">2º Tempo - 78'</div>
+                                <div class="flex items-center justify-center space-x-8">
+                                    <div class="text-center">
+                                        <div class="text-lg font-semibold">Atlético Batatais</div>
+                                        <div class="text-3xl font-bold">2</div>
+                                    </div>
+                                    <div class="text-2xl">×</div>
+                                    <div class="text-center">
+                                        <div class="text-lg font-semibold">Guarani FC</div>
+                                        <div class="text-3xl font-bold">1</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Timeline do Jogo -->
+                        <div id="timelineJogo" class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <!-- Chat da Transmissão -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-labe-primary">Chat da Transmissão</h3>
+                        <div id="chatTransmissao" class="space-y-2 max-h-64 overflow-y-auto text-sm">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            <input type="text" id="chatInput" placeholder="Comente o jogo..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base">
+                            <button onclick="enviarComentario()" class="bg-labe-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500 text-center">
+                            <i class="fas fa-users mr-1"></i>142 espectadores online
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Área do Administrador -->
+        <section id="areaAdminSection" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Gestão de Clubes</h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-labe-primary hover:bg-blue-800 text-white py-2 rounded transition-colors">
+                            <i class="fas fa-shield-alt mr-2"></i>Gerenciar Clubes
+                        </button>
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Cadastrar Clube
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Campeonato</h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-labe-secondary hover:bg-red-700 text-white py-2 rounded transition-colors">
+                            <i class="fas fa-calendar mr-2"></i>Gerar Tabela
+                        </button>
+                        <button class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded transition-colors">
+                            <i class="fas fa-trophy mr-2"></i>Configurar Playoffs
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Sistema</h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded transition-colors">
+                            <i class="fas fa-users mr-2"></i>Gerenciar Usuários
+                        </button>
+                        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded transition-colors">
+                            <i class="fas fa-newspaper mr-2"></i>Publicar Notícia
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-labe-primary text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">LABE</h4>
+                    <p class="text-blue-200 text-sm">Liga Amadora Batataense de Esportes - Promovendo o futebol amador com paixão e profissionalismo desde 2016.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Regulamento</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Calendário</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Estatísticas</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Contato</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contato</h4>
+                    <div class="text-blue-200 text-sm space-y-2">
+                        <p><i class="fas fa-envelope mr-2"></i>contato@labe.com.br</p>
+                        <p><i class="fas fa-phone mr-2"></i>(16) 3761-2024</p>
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>Batatais, SP</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-blue-800 mt-8 pt-4 text-center text-blue-200 text-sm">
+                <p>&copy; 2024 LABE - Liga Amadora Batataense de Esportes. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>        // Dark mode setup
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // SUPABASE CONFIGURATION - SUAS CREDENCIAIS REAIS
+        const SUPABASE_CONFIG = {
+            url: 'https://rtveghzatlfvncilyzhm.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dmVnaHphdGxmdm5jaWx5emhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0ODQyMDksImV4cCI6MjA1MzA2MDIwOX0.ufStU944FRe-yQ_z9TQT-7N_aM6MTd0_Dobq8yOdg2w'
+        };
+
+        // Initialize Supabase
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+
+        // Database class
+        class LABEDatabase {
+            constructor() {
+                this.supabase = supabaseClient;
+                console.log('🔗 Conectado ao Supabase:', SUPABASE_CONFIG.url);
+            }
+
+            subscribe(table, callback) {
+                if (table === 'chat') {
+                    this.supabase
+                        .from('chat')
+                        .select('*')
+                        .order('created_at', { ascending: true })
+                        .then(({ data, error }) => {
+                            if (error) {
+                                console.error('❌ Erro ao carregar chat:', error);
+                                return;
+                            }
+                            console.log('✅ Mensagens carregadas:', data?.length || 0);
+                            data?.forEach(msg => callback({ data: msg, eventType: 'INITIAL' }));
+                        });
+
+                    this.supabase
+                        .channel('chat-channel')
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, 
+                            (payload) => {
+                                console.log('💬 Nova mensagem recebida:', payload.new);
+                                callback({ data: payload.new, eventType: 'INSERT' });
+                            }
+                        )
+                        .subscribe();
+                }
+
+                if (table === 'jogos') {
+                    this.supabase
+                        .from('jogos')
+                        .select('*')
+                        .then(({ data, error }) => {
+                            if (error) {
+                                console.error('❌ Erro ao carregar jogos:', error);
+                                return;
+                            }
+                            console.log('✅ Jogos carregados:', data?.length || 0);
+                            data?.forEach(jogo => callback({ data: jogo, eventType: 'INITIAL' }));
+                        });
+
+                    this.supabase
+                        .channel('jogos-channel')
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'jogos' }, 
+                            (payload) => {
+                                console.log('⚽ Jogo atualizado:', payload.new);
+                                callback({ data: payload.new, eventType: 'UPDATE' });
+                            }
+                        )
+                        .subscribe();
+                }
+            }
+
+            async insert(table, data) {
+                try {
+                    if (table === 'chat') {
+                        console.log('📤 Enviando mensagem:', data);
+                        const { data: result, error } = await this.supabase
+                            .from('chat')
+                            .insert([data])
+                            .select();
+                        
+                        if (error) {
+                            console.error('❌ Erro ao inserir chat:', error);
+                            return { data: null, error };
+                        }
+                        
+                        console.log('✅ Mensagem enviada:', result);
+                        return { data: result, error: null };
+                    }
+                } catch (err) {
+                    console.error('❌ Erro na inserção:', err);
+                    return { data: null, error: err };
+                }
+            }
+
+            async update(table, id, updates) {
+                try {
+                    console.log(`📝 Atualizando ${table}:`, { id, updates });
+                    const { data, error } = await this.supabase
+                        .from(table)
+                        .update(updates)
+                        .eq('id', id)
+                        .select();
+                    
+                    if (error) {
+                        console.error('❌ Erro ao atualizar:', error);
+                        return { data: null, error };
+                    }
+                    
+                    console.log('✅ Atualização realizada:', data);
+                    return { data: data[0], error: null };
+                } catch (err) {
+                    console.error('❌ Erro na atualização:', err);
+                    return { data: null, error: err };
+                }
+            }
+        }
+
+        // Initialize database
+        const labeDB = new LABEDatabase();
+        let currentUser = null;
+
+        // Mock data
+        const mockData = {
+            clubes: [
+                { id: 'atletico-batatais', nome: 'Atlético Batatais', pontos: 42, jogos: 15, vitorias: 13, empates: 3, derrotas: 1, golsPro: 38, golsContra: 12, cor: '#FF0000' },
+                { id: 'guarani', nome: 'Guarani FC', pontos: 42, jogos: 15, vitorias: 13, empates: 3, derrotas: 1, golsPro: 35, golsContra: 10, cor: '#00AA00' },
+                { id: 'santos', nome: 'Santos FC', pontos: 38, jogos: 15, vitorias: 12, empates: 2, derrotas: 3, golsPro: 33, golsContra: 15, cor: '#000000' },
+                { id: 'independente', nome: 'Independente', pontos: 32, jogos: 15, vitorias: 10, empates: 2, derrotas: 5, golsPro: 28, golsContra: 18, cor: '#FF4444' },
+                { id: 'palmeiras', nome: 'Palmeiras', pontos: 28, jogos: 15, vitorias: 8, empates: 4, derrotas: 5, golsPro: 25, golsContra: 20, cor: '#008800' },
+                { id: 'unidos', nome: 'Unidos da Vila', pontos: 18, jogos: 15, vitorias: 5, empates: 3, derrotas: 9, golsPro: 18, golsContra: 32, cor: '#4444FF' }
+            ],
+            proximosJogos: [
+                { data: 'Hoje 15:00', casa: 'Atlético Batatais', visitante: 'Guarani FC', local: 'Estádio Municipal' },
+                { data: 'Dom 16:00', casa: 'Santos FC', visitante: 'Independente', local: 'Campo do Santos' },
+                { data: 'Seg 20:00', casa: 'Palmeiras', visitante: 'Unidos da Vila', local: 'Arena Verde' }
+            ],
+            resultados: [
+                { data: 'Sex 20:00', casa: 'Unidos da Vila', golsCasa: 1, visitante: 'Palmeiras', golsVisitante: 2 },
+                { data: 'Qui 19:30', casa: 'Independente', golsCasa: 3, visitante: 'Santos FC', golsVisitante: 1 },
+                { data: 'Qua 20:00', casa: 'Guarani FC', golsCasa: 2, visitante: 'Atlético Batatais', golsVisitante: 2 }
+            ]
+        };        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.className = 'nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap';
+                });
+                btn.className = 'nav-btn py-4 px-2 border-b-2 border-labe-secondary text-labe-secondary font-medium whitespace-nowrap';
+                
+                const section = btn.dataset.section;
+                document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+                document.getElementById(section).classList.remove('hidden');
+            });
+        });
+
+        // Login functionality
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeLogin').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.add('hidden');
+        });
+
+        document.getElementById('userType').addEventListener('change', (e) => {
+            const clubeSelect = document.getElementById('clubeSelect');
+            if (e.target.value === 'clube') {
+                clubeSelect.classList.remove('hidden');
+            } else {
+                clubeSelect.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userType = document.getElementById('userType').value;
+            const username = document.getElementById('username').value;
+            
+            if (username.trim()) {
+                currentUser = {
+                    type: userType,
+                    username: username,
+                    clube: userType === 'clube' ? document.getElementById('clube').value : null
+                };
+                
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user mr-2"></i>${username}`;
+                
+                updateUIForLoggedUser();
+                showNotification('✅ Login realizado!', `Bem-vindo, ${username}!`, 'fas fa-user-check');
+            }
+        });
+
+        function updateUIForLoggedUser() {
+            const nav = document.querySelector('nav .flex');
+            
+            if (currentUser.type === 'admin') {
+                if (!document.querySelector('[data-section="areaAdminSection"]')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap';
+                    btn.dataset.section = 'areaAdminSection';
+                    btn.innerHTML = '<i class="fas fa-crown mr-2"></i>Admin';
+                    nav.appendChild(btn);
+                    
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.nav-btn').forEach(b => {
+                            b.className = 'nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap';
+                        });
+                        btn.className = 'nav-btn py-4 px-2 border-b-2 border-labe-secondary text-labe-secondary font-medium whitespace-nowrap';
+                        
+                        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+                        document.getElementById('areaAdminSection').classList.remove('hidden');
+                    });
+                }
+                createAdminPanel();
+            }
+        }
+
+        function createAdminPanel() {
+            if (currentUser?.type === 'admin') {
+                const adminSection = document.getElementById('areaAdminSection');
+                if (!adminSection || adminSection.querySelector('.admin-controls')) return;
+                
+                const controlPanel = document.createElement('div');
+                controlPanel.className = 'admin-controls col-span-3 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg shadow-lg p-6 text-white mt-8';
+                controlPanel.innerHTML = `
+                    <h3 class="text-xl font-semibold mb-4">🔴 Painel de Controle ao Vivo</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button onclick="simularGol()" class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-3 rounded-lg transition-colors">
+                            ⚽ Simular Gol
+                        </button>
+                        <button onclick="simularCartao()" class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-3 rounded-lg transition-colors">
+                            🟨 Simular Cartão
+                        </button>
+                        <button onclick="finalizarJogo()" class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-3 rounded-lg transition-colors">
+                            🏁 Finalizar Jogo
+                        </button>
+                    </div>
+                    <div class="mt-4 text-sm bg-white bg-opacity-10 rounded p-3">
+                        <div>👥 Usuários Online: <span class="font-bold">247</span></div>
+                        <div>📱 Dispositivos Conectados: <span class="font-bold">156</span></div>
+                        <div>💬 Mensagens hoje: <span class="font-bold">1,432</span></div>
+                    </div>
+                `;
+                
+                adminSection.appendChild(controlPanel);
+            }
+        }
+
+        // Admin functions
+        function simularGol() {
+            labeDB.update('jogos', 1, {
+                gols_casa: 3,
+                minuto: '85',
+                status: 'gol'
+            });
+            showNotification('⚽ Gol simulado!', 'Placar atualizado para todos os usuários!');
+            vibrate([50, 100, 50]);
+        }
+
+        function simularCartao() {
+            showNotification('🟨 Cartão Amarelo', 'Pedro Santos (Guarani FC) recebe amarelo');
+            vibrate([200]);
+        }
+
+        function finalizarJogo() {
+            labeDB.update('jogos', 1, {
+                status: 'finalizado',
+                minuto: 'Final'
+            });
+            showNotification('🏁 Fim de Jogo!', 'Atlético Batatais 3x1 Guarani FC');
+            vibrate([50, 50, 50]);
+        }
+
+        // Real-time features
+        function initializeRealtimeFeatures() {
+            labeDB.subscribe('chat', (response) => {
+                if (response.eventType === 'INSERT' || response.eventType === 'INITIAL') {
+                    addMessageToChat(response.data);
+                }
+            });
+
+            labeDB.subscribe('jogos', (response) => {
+                if (response.eventType === 'UPDATE' || response.eventType === 'INITIAL') {
+                    updateLiveMatch(response.data);
+                    
+                    if (response.eventType === 'UPDATE' && response.data.status === 'gol') {
+                        showNotification('⚽ GOOOL!', 'Gol marcado no jogo!');
+                    }
+                }
+            });
+        }
+
+        function addMessageToChat(messageData) {
+            const chat = document.getElementById('chatMensagens');
+            if (!chat) return;
+            
+            const div = document.createElement('div');
+            div.className = 'text-sm';
+            
+            const time = new Date(messageData.created_at).toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="font-semibold text-labe-primary">${messageData.usuario}:</span>
+                        <span>${messageData.mensagem}</span>
+                    </div>
+                    <span class="text-xs text-gray-500">${time}</span>
+                </div>
+            `;
+            
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function updateLiveMatch(jogoData) {
+            const placarElements = document.querySelectorAll('.placar-tempo-real');
+            placarElements.forEach(el => {
+                el.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-sm mb-2">${jogoData.status === 'andamento' ? `2º Tempo - ${jogoData.minuto}'` : 'Finalizado'}</div>
+                        <div class="flex items-center justify-center space-x-8">
+                            <div class="text-center">
+                                <div class="text-lg font-semibold">${jogoData.casa}</div>
+                                <div class="text-3xl font-bold">${jogoData.gols_casa || 2}</div>
+                            </div>
+                            <div class="text-2xl">×</div>
+                            <div class="text-center">
+                                <div class="text-lg font-semibold">${jogoData.visitante}</div>
+                                <div class="text-3xl font-bold">${jogoData.gols_visitante || 1}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Send message
+        function enviarMensagem() {
+            const input = document.getElementById('mensagemInput');
+            const mensagem = input.value.trim();
+            
+            if (mensagem && currentUser) {
+                labeDB.insert('chat', {
+                    usuario: currentUser.username,
+                    mensagem: mensagem
+                });
+                
+                input.value = '';
+                vibrate([30]);
+            } else if (mensagem && !currentUser) {
+                showNotification('⚠️ Faça login', 'Você precisa estar logado para enviar mensagens!');
+            }
+        }
+
+        function enviarComentario() {
+            const input = document.getElementById('chatInput');
+            const comentario = input.value.trim();
+            
+            if (comentario && currentUser) {
+                const chat = document.getElementById('chatTransmissao');
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-start mb-2';
+                div.innerHTML = `
+                    <div>
+                        <span class="font-semibold text-labe-primary">${currentUser.username}:</span>
+                        <span>${comentario}</span>
+                    </div>
+                    <span class="text-xs text-gray-500">agora</span>
+                `;
+                
+                chat.appendChild(div);
+                chat.scrollTop = chat.scrollHeight;
+                input.value = '';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('mensagemInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                enviarMensagem();
+            }
+        });
+
+        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                enviarComentario();
+            }
+        });
+        // Notification system
+        function showNotification(title, body, icon = 'fas fa-futbol') {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 max-w-sm z-50 transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="${icon} text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-gray-900 dark:text-gray-100">${title}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">${body}</div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        function vibrate(pattern = [100]) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        function showConnectionStatus() {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'fixed top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm z-50';
+            statusDiv.innerHTML = `
+                <i class="fas fa-wifi mr-1"></i>
+                <span>Conectado ao LABE</span>
+            `;
+            document.body.appendChild(statusDiv);
+            
+            setTimeout(() => {
+                statusDiv.style.opacity = '0.7';
+            }, 3000);
+        }
+
+        // Populate UI with data
+        function populateClassificacao() {
+            const tbody = document.getElementById('tabelaClassificacao');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            mockData.clubes.forEach((clube, index) => {
+                const saldoGols = clube.golsPro - clube.golsContra;
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                
+                let positionClass = '';
+                if (index < 4) positionClass = 'bg-green-100 dark:bg-green-900';
+                else if (index < 6) positionClass = 'bg-orange-100 dark:bg-orange-900';
+                else positionClass = 'bg-red-100 dark:bg-red-900';
+                
+                row.innerHTML = `
+                    <td class="py-3 px-4">
+                        <div class="flex items-center">
+                            <div class="w-3 h-6 ${positionClass} rounded-sm mr-3"></div>
+                            <span class="font-semibold">${index + 1}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 font-medium">${clube.nome}</td>
+                    <td class="py-3 px-4 text-center font-bold">${clube.pontos}</td>
+                    <td class="py-3 px-4 text-center">${clube.jogos}</td>
+                    <td class="py-3 px-4 text-center">${clube.vitorias}</td>
+                    <td class="py-3 px-4 text-center">${clube.empates}</td>
+                    <td class="py-3 px-4 text-center">${clube.derrotas}</td>
+                    <td class="py-3 px-4 text-center">${clube.golsPro}</td>
+                    <td class="py-3 px-4 text-center">${clube.golsContra}</td>
+                    <td class="py-3 px-4 text-center ${saldoGols >= 0 ? 'text-green-600' : 'text-red-600'}">${saldoGols >= 0 ? '+' : ''}${saldoGols}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function populateJogos() {
+            const proximosContainer = document.getElementById('proximosJogos');
+            if (proximosContainer) {
+                proximosContainer.innerHTML = '';
+                mockData.proximosJogos.forEach(jogo => {
+                    const div = document.createElement('div');
+                    div.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow';
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-500">${jogo.data}</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">${jogo.local}</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <span class="font-medium text-right flex-1">${jogo.casa}</span>
+                            <span class="text-2xl text-gray-400">vs</span>
+                            <span class="font-medium text-left flex-1">${jogo.visitante}</span>
+                        </div>
+                    `;
+                    proximosContainer.appendChild(div);
+                });
+            }
+
+            const resultadosContainer = document.getElementById('resultadosRecentes');
+            if (resultadosContainer) {
+                resultadosContainer.innerHTML = '';
+                mockData.resultados.forEach(resultado => {
+                    const div = document.createElement('div');
+                    div.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow';
+                    div.innerHTML = `
+                        <div class="text-sm text-gray-500 mb-2">${resultado.data}</div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <span class="font-medium text-right flex-1">${resultado.casa}</span>
+                            <div class="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded">
+                                <span class="font-bold text-lg">${resultado.golsCasa} - ${resultado.golsVisitante}</span>
+                            </div>
+                            <span class="font-medium text-left flex-1">${resultado.visitante}</span>
+                        </div>
+                    `;
+                    resultadosContainer.appendChild(div);
+                });
+            }
+        }
+
+        function populateTimeline() {
+            const timeline = document.getElementById('timelinePosts');
+            if (!timeline) return;
+            
+            const posts = [
+                {
+                    autor: 'Atlético Batatais',
+                    tempo: 'Há 1 hora',
+                    conteudo: 'Nosso time está preparado para o clássico de hoje! Vamos com tudo! 🔴⚽',
+                    curtidas: 23,
+                    comentarios: 5
+                },
+                {
+                    autor: 'LABE Oficial',
+                    tempo: 'Há 2 horas',
+                    conteudo: 'Relembre os melhores momentos da rodada passada!',
+                    curtidas: 47,
+                    comentarios: 12
+                },
+                {
+                    autor: 'Guarani FC',
+                    tempo: 'Há 3 horas',
+                    conteudo: 'Treino finalizado! Time concentrado para o jogo decisivo desta tarde! 💚🦅',
+                    curtidas: 31,
+                    comentarios: 8
+                }
+            ];
+
+            timeline.innerHTML = '';
+            posts.forEach(post => {
+                const div = document.createElement('div');
+                div.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4';
+                div.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 bg-labe-primary text-white rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">${post.autor}</div>
+                            <div class="text-sm text-gray-500">${post.tempo}</div>
+                        </div>
+                    </div>
+                    <p class="mb-3">${post.conteudo}</p>
+                    <div class="flex items-center space-x-6 text-sm text-gray-500">
+                        <button class="flex items-center hover:text-labe-primary transition-colors">
+                            <i class="fas fa-heart mr-1"></i>
+                            <span>${post.curtidas}</span>
+                        </button>
+                        <button class="flex items-center hover:text-labe-primary transition-colors">
+                            <i class="fas fa-comment mr-1"></i>
+                            <span>${post.comentarios}</span>
+                        </button>
+                        <button class="flex items-center hover:text-labe-primary transition-colors">
+                            <i class="fas fa-share mr-1"></i>
+                            Compartilhar
+                        </button>
+                    </div>
+                `;
+                timeline.appendChild(div);
+            });
+        }
+
+        function populateTransmissao() {
+            const timeline = document.getElementById('timelineJogo');
+            if (!timeline) return;
+            
+            const eventos = [
+                { minuto: '78\'', evento: 'Falta para o Atlético na entrada da área', tipo: 'info' },
+                { minuto: '75\'', evento: 'GOOOL! Carlos Silva marca o segundo do Atlético!', tipo: 'gol' },
+                { minuto: '72\'', evento: 'Cartão amarelo para João Defesa (Guarani)', tipo: 'cartao' },
+                { minuto: '68\'', evento: 'Substituição: Sai Roberto, entra Miguel (Atlético)', tipo: 'substituicao' },
+                { minuto: '65\'', evento: 'Grande defesa do goleiro do Guarani!', tipo: 'defesa' },
+                { minuto: '60\'', evento: 'GOOOL! Pedro Santos empata para o Guarani!', tipo: 'gol' }
+            ];
+
+            timeline.innerHTML = '';
+            eventos.forEach(evento => {
+                const div = document.createElement('div');
+                let iconClass = 'fas fa-info-circle text-blue-500';
+                if (evento.tipo === 'gol') iconClass = 'fas fa-futbol text-green-500';
+                else if (evento.tipo === 'cartao') iconClass = 'fas fa-square text-yellow-500';
+                else if (evento.tipo === 'substituicao') iconClass = 'fas fa-exchange-alt text-purple-500';
+                else if (evento.tipo === 'defesa') iconClass = 'fas fa-hand-paper text-orange-500';
+
+                div.className = 'flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg';
+                div.innerHTML = `
+                    <div class="flex-shrink-0">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold">${evento.minuto}</span>
+                        </div>
+                        <p class="text-sm">${evento.evento}</p>
+                    </div>
+                `;
+                timeline.appendChild(div);
+            });
+
+            const chatTransmissao = document.getElementById('chatTransmissao');
+            if (chatTransmissao) {
+                const comentarios = [
+                    { usuario: 'Torcedor1', mensagem: 'Que golaço do Carlos!', tempo: '78\'' },
+                    { usuario: 'Fan_Guarani', mensagem: 'Ainda dá tempo de empatar', tempo: '77\'' },
+                    { usuario: 'LabeForever', mensagem: 'Jogo muito bom!', tempo: '76\'' },
+                    { usuario: 'Atleticano', mensagem: 'VAMOOO ATLÉTICO!', tempo: '75\'' }
+                ];
+
+                chatTransmissao.innerHTML = '';
+                comentarios.forEach(comment => {
+                    const div = document.createElement('div');
+                    div.className = 'flex justify-between items-start mb-2';
+                    div.innerHTML = `
+                        <div>
+                            <span class="font-semibold text-labe-primary">${comment.usuario}:</span>
+                            <span>${comment.mensagem}</span>
+                        </div>
+                        <span class="text-xs text-gray-500">${comment.tempo}</span>
+                    `;
+                    chatTransmissao.appendChild(div);
+                });
+            }
+        }
+
+        // Initialize app
+        function initializeApp() {
+            populateClassificacao();
+            populateJogos();
+            populateTimeline();
+            populateTransmissao();
+            initializeRealtimeFeatures();
+            showConnectionStatus();
+            
+            setTimeout(() => {
+                showNotification(
+                    '🚀 LABE Conectado!',
+                    'Todas as funcionalidades estão ativas!',
+                    'fas fa-rocket'
+                );
+            }, 2000);
+        }
+
+        // PWA Installation
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            setTimeout(() => {
+                const installBanner = document.createElement('div');
+                installBanner.className = 'fixed bottom-4 left-4 right-4 bg-labe-primary text-white p-4 rounded-lg shadow-lg z-50';
+                installBanner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-mobile-alt text-2xl mr-3"></i>
+                            <div>
+                                <div class="font-semibold">Instalar LABE</div>
+                                <div class="text-sm text-blue-200">Adicione o app à sua tela inicial!</div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="installPWA()" class="bg-white text-labe-primary px-4 py-2 rounded font-semibold">
+                                Instalar
+                            </button>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-blue-200 hover:text-white">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(installBanner);
+            }, 3000);
+        });
+
+        window.installPWA = async function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                showNotification('📱 PWA', outcome === 'accepted' ? 'App instalado!' : 'Instalação cancelada');
+            }
+        };
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        console.log('🔥🚀📱 LABE - VERSÃO COMPLETA PRONTA PARA VERCEL!');
+    </script>
+</body>
+</html>
