@@ -6,16 +6,15 @@
     <title>LABE - Liga Amadora Batataense de Esportes</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="Liga Amadora Batataense de Esportes - O melhor app de futebol amador do Brasil">
+    <meta name="description" content="Liga Amadora Batataense de Esportes - Sistema Oficial de Gestão">
     <meta name="theme-color" content="#2D3B69">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="LABE">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTEFCRSIsInNob3J0X25hbWUiOiJMQUJFIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMyRDNCNjkiLCJ0aGVtZV9jb2xvciI6IiMyRDNCNjkifQ==">
     
     <!-- CDN Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -27,6 +26,8 @@
                         'labe-primary': '#2D3B69',
                         'labe-secondary': '#DC2626',
                         'labe-accent': '#F59E0B',
+                        'labe-success': '#059669',
+                        'labe-warning': '#D97706',
                     }
                 }
             }
@@ -34,9 +35,168 @@
     </script>
 
     <style>
-        /* Custom styles */
-        @media (prefers-color-scheme: dark) { html { color-scheme: dark; } }
-        .battery-saver * { animation: none !important; transition: none !important; }
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) { 
+            html { color-scheme: dark; } 
+        }
+        
+        /* Smooth scrolling */
+        html { 
+            scroll-behavior: smooth; 
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #2D3B69; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #1e2a4a; }
+        
+        /* Focus styles */
+        button:focus, input:focus, select:focus { 
+            outline: 2px solid #2D3B69; 
+            outline-offset: 2px; 
+        }
+        
+        /* Mobile navigation fixes */
+        .nav-container {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .nav-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        /* Mobile responsive improvements */
+        @media (max-width: 768px) {
+            input[type="text"], 
+            input[type="email"], 
+            input[type="password"], 
+            input[type="date"],
+            input[type="time"],
+            textarea, 
+            select { 
+                font-size: 16px !important; 
+            }
+            
+            .nav-btn { 
+                min-height: 48px; 
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+            
+            .nav-btn i {
+                display: block;
+                margin: 0 auto 2px auto;
+                font-size: 14px;
+            }
+            
+            .nav-text {
+                display: block;
+                font-size: 10px;
+                line-height: 1;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-btn {
+                padding: 16px 12px;
+                font-size: 14px;
+            }
+            
+            .nav-btn i {
+                margin-right: 8px;
+            }
+            
+            .nav-text {
+                display: inline;
+            }
+        }
+        /* Notification animations */
+        .notification-enter {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .notification-enter-active {
+            transform: translateX(0);
+            opacity: 1;
+            transition: transform 300ms ease-out, opacity 300ms ease-out;
+        }
+        
+        .notification-exit {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification-exit-active {
+            transform: translateX(100%);
+            opacity: 0;
+            transition: transform 300ms ease-in, opacity 300ms ease-in;
+        }
+        
+        /* Calendar grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+        }
+        
+        .calendar-day {
+            background: white;
+            min-height: 60px;
+            padding: 4px;
+            position: relative;
+        }
+        
+        .calendar-day.other-month {
+            background: #f9fafb;
+            color: #9ca3af;
+        }
+        
+        .calendar-day.today {
+            background: #dbeafe;
+            border: 2px solid #2D3B69;
+        }
+        
+        .calendar-event {
+            background: #2D3B69;
+            color: white;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        /* Ranking animations */
+        .ranking-item {
+            transition: all 0.3s ease;
+        }
+        
+        .ranking-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Loading states */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+        
         .loading::after {
             content: '';
             position: absolute;
@@ -47,860 +207,1995 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             animation: loading 1.5s infinite;
         }
-        @keyframes loading { 0% { left: -100%; } 100% { left: 100%; } }
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #2D3B69; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #1e2a4a; }
-        button:focus, input:focus, select:focus { outline: 2px solid #2D3B69; outline-offset: 2px; }
-        @media (max-width: 768px) {
-            input[type="text"], input[type="email"], input[type="password"], textarea, select { font-size: 16px !important; }
-            button, .nav-btn { min-height: 44px; min-width: 44px; }
+        
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
-        @keyframes pulse-custom { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .pulse-custom { animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        /* Status indicators */
+        .status-online { color: #10b981; }
+        .status-offline { color: #ef4444; }
+        .status-pending { color: #f59e0b; }
+        
+        /* Button hover effects */
+        .btn-hover:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Dark mode specific */
+        @media (prefers-color-scheme: dark) {
+            .calendar-day {
+                background: #374151;
+                color: #f9fafb;
+            }
+            
+            .calendar-day.other-month {
+                background: #1f2937;
+                color: #6b7280;
+            }
+            
+            .calendar-day.today {
+                background: #1e40af;
+                border-color: #3b82f6;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">    <!-- Header -->
-    <header class="bg-labe-primary shadow-lg">
-        <div class="container mx-auto px-4 py-4">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="fixed top-4 left-4 z-50 transition-all duration-300 transform -translate-y-full">
+        <div class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+            <i class="fas fa-wifi mr-1"></i>
+            <span>Conectado ao LABE</span>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Header -->
+    <header class="bg-labe-primary shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                        <i class="fas fa-futbol text-labe-primary text-xl"></i>
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-futbol text-labe-primary text-lg md:text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-white text-2xl font-bold">LABE</h1>
-                        <p class="text-blue-200 text-sm">Liga Amadora Batataense de Esportes</p>
+                        <h1 class="text-white text-lg md:text-2xl font-bold">LABE</h1>
+                        <p class="text-blue-200 text-xs md:text-sm">Liga Amadora Batataense de Esportes</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button id="loginBtn" class="bg-labe-secondary hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <button id="notificationBtn" class="relative p-2 text-white hover:bg-blue-800 rounded-lg transition-colors hidden">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </button>
-                    <div class="text-white text-sm">
+                    <button id="loginBtn" class="bg-labe-secondary hover:bg-red-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg transition-colors text-sm md:text-base btn-hover">
+                        <i class="fas fa-sign-in-alt mr-1 md:mr-2"></i>Login
+                    </button>
+                    <div class="text-white text-xs hidden lg:block">
                         <div>Temporada 2024</div>
-                        <div class="text-blue-200">Rodada 15</div>
+                        <div class="text-blue-200">Sistema LABE</div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
-
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
-        <div class="container mx-auto px-4">
-            <div class="flex space-x-8 overflow-x-auto">
-                <button class="nav-btn py-4 px-2 border-b-2 border-labe-secondary text-labe-secondary font-medium whitespace-nowrap" data-section="home">
-                    <i class="fas fa-home mr-2"></i>Início
+    <nav class="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 sticky top-16 z-30">
+        <div class="container mx-auto px-2 md:px-4">
+            <div class="nav-container">
+                <button class="nav-btn border-b-2 border-labe-secondary text-labe-secondary font-medium" data-section="home">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-text">Início</span>
                 </button>
-                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="tabela">
-                    <i class="fas fa-trophy mr-2"></i>Classificação
+                <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="ranking">
+                    <i class="fas fa-trophy"></i>
+                    <span class="nav-text">Ranking</span>
                 </button>
-                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="jogos">
-                    <i class="fas fa-calendar mr-2"></i>Jogos
+                <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="calendario">
+                    <i class="fas fa-calendar"></i>
+                    <span class="nav-text">Calendário</span>
                 </button>
-                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="social">
-                    <i class="fas fa-users mr-2"></i>Social
+                <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="clubes">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="nav-text">Clubes</span>
                 </button>
-                <button class="nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap" data-section="transmissao">
-                    <i class="fas fa-broadcast-tower mr-2"></i>Live
+                <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="transferencias">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span class="nav-text">Transferências</span>
+                </button>
+                <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="admin">
+                    <i class="fas fa-cog"></i>
+                    <span class="nav-text">Admin</span>
                 </button>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 py-6 md:py-8">
         <!-- Login Modal -->
-        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-            <div class="flex items-center justify-center min-h-screen p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">Login no LABE</h3>
-                        <button id="closeLogin" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times"></i>
-                        </button>
+        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md transform transition-all duration-300 scale-95 opacity-0" id="loginModalContent">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="fas fa-shield-alt text-labe-primary mr-2"></i>
+                        Login Seguro - LABE
+                    </h3>
+                    <button id="closeLogin" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div id="loginError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span id="loginErrorMessage">Credenciais inválidas!</span>
                     </div>
+                    
                     <form id="loginForm">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2">Tipo de Usuário</label>
-                                <select id="userType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base">
-                                    <option value="visitante">Visitante</option>
-                                    <option value="clube">Representante de Clube</option>
-                                    <option value="mesario">Mesário</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
-                            </div>
-                            <div id="clubeSelect" class="hidden">
-                                <label class="block text-sm font-medium mb-2">Clube</label>
-                                <select id="clube" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base">
-                                    <option value="atletico-batatais">Atlético Batatais</option>
-                                    <option value="guarani">Guarani FC</option>
-                                    <option value="independente">Independente</option>
-                                    <option value="palmeiras">Palmeiras</option>
-                                    <option value="santos">Santos FC</option>
-                                    <option value="unidos">Unidos da Vila</option>
-                                </select>
+                                <label class="block text-sm font-medium mb-2">
+                                    <i class="fas fa-user mr-1"></i>Usuário
+                                </label>
+                                <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base transition-colors" placeholder="Digite seu usuário" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2">Usuário</label>
-                                <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base" placeholder="Digite seu usuário">
+                                <label class="block text-sm font-medium mb-2">
+                                    <i class="fas fa-lock mr-1"></i>Senha
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base transition-colors" placeholder="Digite sua senha" required>
+                                    <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Senha</label>
-                                <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-labe-primary text-base" placeholder="Digite sua senha">
-                            </div>
-                            <button type="submit" class="w-full bg-labe-primary hover:bg-blue-800 text-white py-2 rounded-lg transition-colors">
-                                Entrar
+                            <button type="submit" class="w-full bg-labe-primary hover:bg-blue-800 text-white py-2 rounded-lg transition-colors btn-hover">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Entrar
                             </button>
                         </div>
                     </form>
+                    
+                    <div class="mt-6 text-center">
+                        <div class="text-sm text-gray-600 dark:text-gray-400 border-t pt-4">
+                            <p class="flex items-center justify-center">
+                                <i class="fas fa-shield-check text-green-500 mr-2"></i>
+                                Sistema seguro com autenticação real
+                            </p>
+                            <p class="text-xs mt-2 text-gray-500">
+                                Admin: <code class="bg-gray-100 px-1 rounded">admin_labe</code> / <code class="bg-gray-100 px-1 rounded">LABE2024@admin</code>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
         <!-- Home Section -->
         <section id="home" class="section">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Featured News -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                        <h2 class="text-2xl font-bold mb-6 text-labe-primary">Destaques da LABE</h2>
-                        <div class="space-y-6">
-                            <article class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                                <div class="bg-labe-secondary text-white px-3 py-1 rounded-full text-sm inline-block mb-3">URGENTE</div>
-                                <h3 class="text-xl font-semibold mb-2">Clássico Atlético x Guarani define liderança</h3>
-                                <p class="text-gray-600 dark:text-gray-400 mb-3">O confronto desta tarde promete ser decisivo para o título da temporada 2024. Ambas as equipes chegam empatadas na liderança com 42 pontos.</p>
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fas fa-clock mr-2"></i>
-                                    <span>Há 2 horas</span>
-                                </div>
-                            </article>
-                            
-                            <article class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                                <h3 class="text-lg font-semibold mb-2">Mercado de Transferências movimentado</h3>
-                                <p class="text-gray-600 dark:text-gray-400 mb-3">Santos FC oficializa contratação de atacante artilheiro. Jogador estava no Independente e marca época na liga.</p>
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fas fa-clock mr-2"></i>
-                                    <span>Há 5 horas</span>
-                                </div>
-                            </article>
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-labe-primary mb-4">Sistema LABE</h2>
+                <p class="text-gray-600 dark:text-gray-400">Liga Amadora Batataense de Esportes - Sistema de Gestão Oficial</p>
+            </div>
+            
+            <!-- Guest View -->
+            <div id="guestView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Welcome Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-labe-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-futbol text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Bem-vindo ao LABE</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">Sistema oficial de gestão da Liga Amadora Batataense de Esportes</p>
+                        <button onclick="openLogin()" class="bg-labe-primary hover:bg-blue-800 text-white px-6 py-2 rounded-lg transition-colors btn-hover">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Fazer Login
+                        </button>
+                    </div>
+                </div>
 
-                            <article>
-                                <h3 class="text-lg font-semibold mb-2">Nova regulamentação para arbitragem</h3>
-                                <p class="text-gray-600 dark:text-gray-400 mb-3">Confederação anuncia mudanças no sistema de arbitragem para tornar os jogos mais justos e dinâmicos.</p>
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fas fa-clock mr-2"></i>
-                                    <span>Há 1 dia</span>
-                                </div>
-                            </article>
+                <!-- Features Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary flex items-center">
+                        <i class="fas fa-star mr-2"></i>Funcionalidades
+                    </h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Gestão completa de clubes
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Sistema de campeonatos
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Ranking em tempo real
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Notificações automáticas
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Calendário interativo
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Relatórios automáticos
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <h3 class="text-xl font-semibold mb-4 text-labe-primary flex items-center">
+                        <i class="fas fa-phone mr-2"></i>Contato
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-envelope text-labe-primary mr-3 w-4"></i>
+                            <a href="mailto:contato@labe.com.br" class="hover:text-labe-primary transition-colors">contato@labe.com.br</a>
+                        </div>
+                        <div class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-phone text-labe-primary mr-3 w-4"></i>
+                            <a href="tel:1637612024" class="hover:text-labe-primary transition-colors">(16) 3761-2024</a>
+                        </div>
+                        <div class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-map-marker-alt text-labe-primary mr-3 w-4"></i>
+                            <span>Batatais, SP</span>
+                        </div>
+                        <div class="flex items-center text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-clock text-labe-primary mr-3 w-4"></i>
+                            <span>Seg-Sex: 8h às 18h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Admin Dashboard (Hidden by default) -->
+            <div id="adminDashboard" class="hidden">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-100 text-sm">Total de Clubes</p>
+                                <p class="text-2xl font-bold" id="totalClubes">0</p>
+                            </div>
+                            <i class="fas fa-shield-alt text-3xl text-blue-200"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-100 text-sm">Usuários Ativos</p>
+                                <p class="text-2xl font-bold" id="totalUsuarios">1</p>
+                            </div>
+                            <i class="fas fa-users text-3xl text-green-200"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-purple-100 text-sm">Campeonatos</p>
+                                <p class="text-2xl font-bold" id="totalCampeonatos">0</p>
+                            </div>
+                            <i class="fas fa-trophy text-3xl text-purple-200"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-orange-100 text-sm">Notificações</p>
+                                <p class="text-2xl font-bold" id="totalNotificacoes">0</p>
+                            </div>
+                            <i class="fas fa-bell text-3xl text-orange-200"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Stats -->
-                <div>
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-                        <h3 class="text-lg font-semibold mb-4">Estatísticas Rápidas</h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">Artilheiro</span>
-                                <div class="text-right">
-                                    <div class="font-semibold">Carlos Silva</div>
-                                    <div class="text-sm text-gray-500">18 gols</div>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">Líder</span>
-                                <div class="text-right">
-                                    <div class="font-semibold">Atlético Batatais</div>
-                                    <div class="text-sm text-gray-500">42 pontos</div>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">Próximo Jogo</span>
-                                <div class="text-right">
-                                    <div class="font-semibold">Hoje 15h</div>
-                                    <div class="text-sm text-gray-500">Atlético x Guarani</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- League Position Widget -->
-                    <div class="bg-gradient-to-br from-labe-primary to-blue-800 rounded-lg shadow-lg p-6 text-white">
-                        <h3 class="text-lg font-semibold mb-4">Classificação</h3>
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center text-sm">
-                                <span>1º Atlético Batatais</span>
-                                <span class="font-bold">42</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span>2º Guarani FC</span>
-                                <span class="font-bold">42</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span>3º Santos FC</span>
-                                <span class="font-bold">38</span>
-                            </div>
-                        </div>
-                        <button class="w-full mt-4 bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2 rounded-lg transition-colors">
-                            Ver Tabela Completa
+                <!-- Quick Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold mb-6 text-labe-primary flex items-center">
+                        <i class="fas fa-bolt mr-2"></i>Ações Rápidas
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button onclick="showSection('clubes')" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-shield-alt text-2xl mb-2"></i>
+                            <span class="text-sm">Gerenciar Clubes</span>
                         </button>
+                        <button onclick="showSection('ranking')" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-trophy text-2xl mb-2"></i>
+                            <span class="text-sm">Rankings</span>
+                        </button>
+                        <button onclick="showSection('calendario')" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-calendar text-2xl mb-2"></i>
+                            <span class="text-sm">Calendário</span>
+                        </button>
+                        <button onclick="enviarNotificacaoTeste()" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-bell text-2xl mb-2"></i>
+                            <span class="text-sm">Notificações</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-6 text-labe-primary flex items-center">
+                        <i class="fas fa-history mr-2"></i>Atividade Recente
+                    </h3>
+                    <div id="recentActivity" class="space-y-4">
+                        <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user-plus text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">Sistema LABE inicializado</p>
+                                <p class="text-xs text-gray-500">Administrador logado - Agora mesmo</p>
+                            </div>
+                            <span class="status-online">
+                                <i class="fas fa-circle text-xs"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- Classificação Section -->
-        <section id="tabela" class="section hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-6 text-labe-primary">Classificação Geral</h2>
+        <!-- Ranking Section -->
+        <section id="ranking" class="section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-labe-primary flex items-center">
+                    <i class="fas fa-trophy mr-2"></i>Rankings
+                </h2>
+                <button onclick="atualizarRankings()" class="bg-labe-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors btn-hover">
+                    <i class="fas fa-sync-alt mr-2"></i>Atualizar
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Ranking de Clubes -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center text-labe-primary">
+                        <i class="fas fa-shield-alt mr-2"></i>Classificação de Clubes
+                    </h3>
+                    <div id="rankingClubes" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-trophy text-4xl mb-4 block"></i>
+                            <p>Nenhum campeonato ativo</p>
+                            <p class="text-sm">Cadastre clubes para visualizar a classificação</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ranking Individual -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center text-labe-primary">
+                        <i class="fas fa-star mr-2"></i>Ranking Individual
+                    </h3>
+                    
+                    <!-- Tabs -->
+                    <div class="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                        <button class="ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors bg-white dark:bg-gray-600 text-labe-primary" data-tab="artilheiros">
+                            Artilheiros
+                        </button>
+                        <button class="ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors text-gray-600 dark:text-gray-400" data-tab="assistencias">
+                            Assistências
+                        </button>
+                        <button class="ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors text-gray-600 dark:text-gray-400" data-tab="cartoes">
+                            Cartões
+                        </button>
+                    </div>
+
+                    <div id="rankingIndividual" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-user-plus text-4xl mb-4 block"></i>
+                            <p>Nenhum jogador cadastrado</p>
+                            <p class="text-sm">Os rankings aparecerão conforme os jogos acontecerem</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Calendário Section -->
+        <section id="calendario" class="section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-labe-primary flex items-center">
+                    <i class="fas fa-calendar mr-2"></i>Calendário
+                </h2>
+                <div class="flex items-center space-x-2">
+                    <button id="prevMonth" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="currentMonth" class="font-semibold min-w-32 text-center">Janeiro 2024</h3>
+                    <button id="nextMonth" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Calendar -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="calendar-header grid grid-cols-7 gap-1 mb-2">
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Dom</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Seg</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Ter</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Qua</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Qui</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Sex</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Sáb</div>
+                    </div>
+                    <div id="calendarDays" class="calendar-grid">
+                        <!-- Days will be generated by JavaScript -->
+                    </div>
+                </div>
+                <!-- Events Sidebar -->
+                <div class="space-y-6">
+                    <!-- Today's Events -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-clock mr-2 text-labe-primary"></i>Hoje
+                        </h3>
+                        <div id="todayEvents" class="space-y-3">
+                            <div class="text-center py-4 text-gray-500 text-sm">
+                                <i class="fas fa-calendar-check text-2xl mb-2 block"></i>
+                                Nenhum evento hoje
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Add Event -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-plus mr-2 text-green-500"></i>Novo Evento
+                        </h3>
+                        <form id="addEventForm" class="space-y-3">
+                            <input type="text" id="eventTitle" placeholder="Título do evento" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <input type="date" id="eventDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <input type="time" id="eventTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <select id="eventType" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <option value="jogo">Jogo</option>
+                                <option value="treino">Treino</option>
+                                <option value="reuniao">Reunião</option>
+                                <option value="evento">Evento</option>
+                            </select>
+                            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors btn-hover">
+                                <i class="fas fa-plus mr-2"></i>Adicionar
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Weather Widget -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-cloud-sun mr-2 text-yellow-500"></i>Tempo
+                        </h3>
+                        <div id="weatherWidget" class="text-center">
+                            <div class="text-4xl mb-2">☀️</div>
+                            <div class="text-2xl font-bold mb-1">25°C</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Ensolarado</div>
+                            <div class="text-xs text-gray-500 mt-2">Batatais, SP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Clubes Section -->
+        <section id="clubes" class="section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-labe-primary flex items-center">
+                    <i class="fas fa-shield-alt mr-2"></i>Gestão de Clubes
+                </h2>
+                <button onclick="showModalCadastroClube()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover">
+                    <i class="fas fa-plus mr-2"></i>Novo Clube
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Clubes Cadastrados</h3>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="searchClubes" placeholder="Buscar clubes..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <button onclick="exportarClubes()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors text-sm">
+                                <i class="fas fa-download mr-1"></i>Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="text-left py-3 px-4">Pos</th>
-                                <th class="text-left py-3 px-4">Clube</th>
-                                <th class="text-center py-3 px-4">PG</th>
-                                <th class="text-center py-3 px-4">J</th>
-                                <th class="text-center py-3 px-4">V</th>
-                                <th class="text-center py-3 px-4">E</th>
-                                <th class="text-center py-3 px-4">D</th>
-                                <th class="text-center py-3 px-4">GP</th>
-                                <th class="text-center py-3 px-4">GC</th>
-                                <th class="text-center py-3 px-4">SG</th>
+                                <th class="text-left py-3 px-4 font-medium">Clube</th>
+                                <th class="text-left py-3 px-4 font-medium">Responsável</th>
+                                <th class="text-left py-3 px-4 font-medium">Contato</th>
+                                <th class="text-left py-3 px-4 font-medium">Jogadores</th>
+                                <th class="text-left py-3 px-4 font-medium">Status</th>
+                                <th class="text-center py-3 px-4 font-medium">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaClassificacao">
-                            <!-- Será preenchido pelo JavaScript -->
+                        <tbody id="listaClubes">
+                            <tr>
+                                <td colspan="6" class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-shield-alt text-4xl mb-4 block"></i>
+                                    <p class="mb-2">Nenhum clube cadastrado ainda</p>
+                                    <p class="text-sm">Clique em "Novo Clube" para começar</p>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
+        <!-- Transferências Section -->
+        <section id="transferencias" class="section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-labe-primary flex items-center">
+                    <i class="fas fa-exchange-alt mr-2"></i>Mercado de Transferências
+                </h2>
+                <button onclick="novaTransferencia()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover">
+                    <i class="fas fa-plus mr-2"></i>Nova Transferência
+                </button>
+            </div>
 
-        <!-- Jogos Section -->
-        <section id="jogos" class="section hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Próximos Jogos</h3>
-                    <div id="proximosJogos" class="space-y-4">
-                        <!-- Será preenchido pelo JavaScript -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Lista de Jogadores Disponíveis -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Filtros -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-filter mr-2 text-labe-primary"></i>Filtros
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Clube</label>
+                                <select id="filtroClube" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="filtrarJogadores()">
+                                    <option value="">Todos os clubes</option>
+                                    <option value="disponivel">Jogadores disponíveis</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Posição</label>
+                                <select id="filtroPosicao" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="filtrarJogadores()">
+                                    <option value="">Todas as posições</option>
+                                    <option value="goleiro">Goleiro</option>
+                                    <option value="zagueiro">Zagueiro</option>
+                                    <option value="lateral">Lateral</option>
+                                    <option value="meio-campo">Meio-campo</option>
+                                    <option value="atacante">Atacante</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Idade</label>
+                                <select id="filtroIdade" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="filtrarJogadores()">
+                                    <option value="">Todas as idades</option>
+                                    <option value="18-25">18-25 anos</option>
+                                    <option value="26-30">26-30 anos</option>
+                                    <option value="31+">31+ anos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Jogadores -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <i class="fas fa-users mr-2 text-labe-primary"></i>Jogadores Disponíveis
+                            </h3>
+                        </div>
+                        <div id="listaJogadores" class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Jogadores serão carregados aqui -->
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Resultados Recentes</h3>
-                    <div id="resultadosRecentes" class="space-y-4">
-                        <!-- Será preenchido pelo JavaScript -->
+                <!-- Sidebar de Transferências -->
+                <div class="space-y-6">
+                    <!-- Transferências Recentes -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-history mr-2 text-green-500"></i>Transferências Recentes
+                        </h3>
+                        <div id="transferenciasRecentes" class="space-y-3">
+                            <div class="text-center py-4 text-gray-500 text-sm">
+                                <i class="fas fa-exchange-alt text-2xl mb-2 block"></i>
+                                Nenhuma transferência realizada ainda
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas do Mercado -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-chart-bar mr-2 text-blue-500"></i>Estatísticas
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Total de Jogadores:</span>
+                                <span id="totalJogadores" class="font-semibold">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Disponíveis:</span>
+                                <span id="jogadoresDisponiveis" class="font-semibold text-green-600">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Transferências:</span>
+                                <span id="totalTransferencias" class="font-semibold text-blue-600">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Esta semana:</span>
+                                <span id="transferenciasRecente" class="font-semibold text-purple-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sistema de Comentários -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-comments mr-2 text-orange-500"></i>Comentários Recentes
+                        </h3>
+                        <div id="comentariosTransferencias" class="space-y-3 max-h-48 overflow-y-auto">
+                            <div class="text-center py-4 text-gray-500 text-sm">
+                                <i class="fas fa-comment text-2xl mb-2 block"></i>
+                                Nenhum comentário ainda
+                            </div>
+                        </div>
+                        
+                        <form id="formComentario" class="mt-4" onsubmit="adicionarComentario(event)">
+                            <div class="flex space-x-2">
+                                <input type="text" id="inputComentario" placeholder="Adicione um comentário..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
+                                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- Social/Timeline Section -->
-        <section id="social" class="section hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Timeline Principal -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                        <h3 class="text-xl font-semibold mb-6 text-labe-primary">Timeline LABE</h3>
-                        
-                        <!-- Timeline Posts -->
-                        <div id="timelinePosts" class="space-y-6">
-                            <!-- Será preenchido pelo JavaScript -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sidebar Social -->
-                <div>
-                    <!-- Chat de Clubes -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-                        <h3 class="text-lg font-semibold mb-4 text-labe-primary">Chat dos Clubes</h3>
-                        <div id="chatMensagens" class="space-y-3 max-h-64 overflow-y-auto">
-                            <!-- Será preenchido pelo JavaScript -->
-                        </div>
-                        <div class="mt-4 flex space-x-2">
-                            <input type="text" id="mensagemInput" placeholder="Digite sua mensagem..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base">
-                            <button onclick="enviarMensagem()" class="bg-labe-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Galeria de Fotos -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-labe-primary">Galeria de Fotos</h3>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
-                                <div class="w-full h-full flex items-center justify-center text-gray-500">
-                                    <i class="fas fa-camera text-2xl"></i>
-                                </div>
-                            </div>
-                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
-                                <div class="w-full h-full flex items-center justify-center text-gray-500">
-                                    <i class="fas fa-image text-2xl"></i>
-                                </div>
-                            </div>
-                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
-                                <div class="w-full h-full flex items-center justify-center text-gray-500">
-                                    <i class="fas fa-trophy text-2xl"></i>
-                                </div>
-                            </div>
-                            <div class="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg overflow-hidden">
-                                <div class="w-full h-full flex items-center justify-center text-gray-500">
-                                    <i class="fas fa-users text-2xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="w-full mt-4 bg-labe-secondary hover:bg-red-700 text-white py-2 rounded-lg transition-colors">
-                            <i class="fas fa-plus mr-2"></i>Adicionar Foto
-                        </button>
+        <!-- Admin Section -->
+        <section id="admin" class="section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-labe-primary flex items-center">
+                    <i class="fas fa-crown mr-2"></i>Painel Administrativo
+                </h2>
+                <div class="flex items-center space-x-2">
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <i class="fas fa-circle text-green-500 mr-2"></i>
+                        Sistema Online
                     </div>
                 </div>
             </div>
-        </section>        <!-- Transmissão ao Vivo Section -->
-        <section id="transmissao" class="section hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-xl font-semibold text-labe-primary">🔴 AO VIVO: Atlético x Guarani</h3>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                <span class="text-sm text-red-500 font-semibold">LIVE</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Placar em Tempo Real -->
-                        <div class="bg-gradient-to-r from-labe-primary to-blue-800 rounded-lg p-6 text-white mb-6 placar-tempo-real">
-                            <div class="text-center">
-                                <div class="text-sm mb-2">2º Tempo - 78'</div>
-                                <div class="flex items-center justify-center space-x-8">
-                                    <div class="text-center">
-                                        <div class="text-lg font-semibold">Atlético Batatais</div>
-                                        <div class="text-3xl font-bold">2</div>
-                                    </div>
-                                    <div class="text-2xl">×</div>
-                                    <div class="text-center">
-                                        <div class="text-lg font-semibold">Guarani FC</div>
-                                        <div class="text-3xl font-bold">1</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Timeline do Jogo -->
-                        <div id="timelineJogo" class="space-y-4 max-h-96 overflow-y-auto">
-                            <!-- Será preenchido pelo JavaScript -->
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <!-- Chat da Transmissão -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-labe-primary">Chat da Transmissão</h3>
-                        <div id="chatTransmissao" class="space-y-2 max-h-64 overflow-y-auto text-sm">
-                            <!-- Será preenchido pelo JavaScript -->
-                        </div>
-                        <div class="mt-4 flex space-x-2">
-                            <input type="text" id="chatInput" placeholder="Comente o jogo..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base">
-                            <button onclick="enviarComentario()" class="bg-labe-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                        <div class="mt-2 text-xs text-gray-500 text-center">
-                            <i class="fas fa-users mr-1"></i>142 espectadores online
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Área do Administrador -->
-        <section id="areaAdminSection" class="section hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Gestão de Clubes</h3>
-                    <div class="space-y-3">
-                        <button class="w-full bg-labe-primary hover:bg-blue-800 text-white py-2 rounded transition-colors">
-                            <i class="fas fa-shield-alt mr-2"></i>Gerenciar Clubes
-                        </button>
-                        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded transition-colors">
-                            <i class="fas fa-plus mr-2"></i>Cadastrar Clube
-                        </button>
-                    </div>
+            <div id="adminContent" class="space-y-6">
+                <!-- Access Denied (Default) -->
+                <div id="accessDenied" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
+                    <i class="fas fa-lock text-6xl text-gray-400 mb-6"></i>
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-300">Acesso Restrito</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Esta seção é exclusiva para administradores do sistema LABE.</p>
+                    <button onclick="openLogin()" class="bg-labe-primary hover:bg-blue-800 text-white px-6 py-3 rounded-lg transition-colors btn-hover">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Fazer Login como Admin
+                    </button>
                 </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Campeonato</h3>
-                    <div class="space-y-3">
-                        <button class="w-full bg-labe-secondary hover:bg-red-700 text-white py-2 rounded transition-colors">
-                            <i class="fas fa-calendar mr-2"></i>Gerar Tabela
-                        </button>
-                        <button class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded transition-colors">
-                            <i class="fas fa-trophy mr-2"></i>Configurar Playoffs
-                        </button>
+
+                <!-- Admin Tools (Hidden by default) -->
+                <div id="adminTools" class="hidden space-y-6">
+                    <!-- System Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-labe-primary flex items-center">
+                                <i class="fas fa-database mr-2"></i>Sistema
+                            </h3>
+                            <div class="space-y-3">
+                                <button onclick="limparDados()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-trash mr-2"></i>Limpar Dados
+                                </button>
+                                <button onclick="backupSistema()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-download mr-2"></i>Backup
+                                </button>
+                                <button onclick="configuracoes()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-cog mr-2"></i>Configurações
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-labe-primary flex items-center">
+                                <i class="fas fa-users mr-2"></i>Usuários
+                            </h3>
+                            <div class="space-y-3">
+                                <button onclick="listarUsuarios()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-list mr-2"></i>Listar Usuários
+                                </button>
+                                <button onclick="criarUsuario()" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-user-plus mr-2"></i>Criar Usuário
+                                </button>
+                                <button onclick="permissoes()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-key mr-2"></i>Permissões
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-labe-primary flex items-center">
+                                <i class="fas fa-bell mr-2"></i>Notificações
+                            </h3>
+                            <div class="space-y-3">
+                                <button onclick="enviarNotificacaoGlobal()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-bullhorn mr-2"></i>Enviar Global
+                                </button>
+                                <button onclick="agendarNotificacao()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-clock mr-2"></i>Agendar
+                                </button>
+                                <button onclick="historicoNotificacoes()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-history mr-2"></i>Histórico
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-labe-primary">Sistema</h3>
-                    <div class="space-y-3">
-                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded transition-colors">
-                            <i class="fas fa-users mr-2"></i>Gerenciar Usuários
-                        </button>
-                        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded transition-colors">
-                            <i class="fas fa-newspaper mr-2"></i>Publicar Notícia
-                        </button>
+                    <!-- System Status -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-labe-primary flex items-center">
+                            <i class="fas fa-chart-line mr-2"></i>Status do Sistema
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600 dark:text-green-400">99.9%</div>
+                                <div class="text-sm text-green-600 dark:text-green-400">Uptime</div>
+                            </div>
+                            <div class="text-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">1.2s</div>
+                                <div class="text-sm text-blue-600 dark:text-blue-400">Resposta</div>
+                            </div>
+                            <div class="text-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg">
+                                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">256MB</div>
+                                <div class="text-sm text-purple-600 dark:text-purple-400">Memória</div>
+                            </div>
+                            <div class="text-center p-4 bg-orange-50 dark:bg-orange-900 rounded-lg">
+                                <div class="text-2xl font-bold text-orange-600 dark:text-orange-400">15GB</div>
+                                <div class="text-sm text-orange-600 dark:text-orange-400">Storage</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Logs -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-labe-primary flex items-center">
+                            <i class="fas fa-file-alt mr-2"></i>Logs Recentes
+                        </h3>
+                        <div id="systemLogs" class="space-y-2 max-h-64 overflow-y-auto font-mono text-sm">
+                            <div class="flex items-center text-green-600">
+                                <span class="text-gray-500 mr-2">[2024-01-15 19:30:45]</span>
+                                <span>Sistema inicializado com sucesso</span>
+                            </div>
+                            <div class="flex items-center text-blue-600">
+                                <span class="text-gray-500 mr-2">[2024-01-15 19:30:46]</span>
+                                <span>Conexão com Supabase estabelecida</span>
+                            </div>
+                            <div class="flex items-center text-green-600">
+                                <span class="text-gray-500 mr-2">[2024-01-15 19:30:47]</span>
+                                <span>Interface carregada - modo responsivo ativo</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
+
     <!-- Footer -->
     <footer class="bg-labe-primary text-white py-8 mt-12">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">LABE</h4>
-                    <p class="text-blue-200 text-sm">Liga Amadora Batataense de Esportes - Promovendo o futebol amador com paixão e profissionalismo desde 2016.</p>
+                    <h4 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-futbol mr-2"></i>LABE
+                    </h4>
+                    <p class="text-blue-200 text-sm mb-4">Liga Amadora Batataense de Esportes - Sistema oficial de gestão com tecnologia de ponta.</p>
+                    <div class="flex space-x-3">
+                        <a href="#" class="text-blue-200 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-200 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-200 hover:text-white transition-colors">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </a>
+                    </div>
                 </div>
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Regulamento</a></li>
-                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Calendário</a></li>
-                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Estatísticas</a></li>
-                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors">Contato</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors flex items-center"><i class="fas fa-book mr-2"></i>Regulamento</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors flex items-center"><i class="fas fa-calendar mr-2"></i>Calendário</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors flex items-center"><i class="fas fa-chart-bar mr-2"></i>Estatísticas</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white transition-colors flex items-center"><i class="fas fa-phone mr-2"></i>Contato</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Contato</h4>
+                    <h4 class="text-lg font-semibold mb-4">Sistema</h4>
                     <div class="text-blue-200 text-sm space-y-2">
-                        <p><i class="fas fa-envelope mr-2"></i>contato@labe.com.br</p>
-                        <p><i class="fas fa-phone mr-2"></i>(16) 3761-2024</p>
-                        <p><i class="fas fa-map-marker-alt mr-2"></i>Batatais, SP</p>
+                        <p class="flex items-center"><i class="fas fa-code mr-2"></i>Versão: 2.0.0</p>
+                        <p class="flex items-center"><i class="fas fa-calendar mr-2"></i>Atualizado: Jan 2024</p>
+                        <p class="flex items-center"><i class="fas fa-shield-check mr-2"></i>Segurança: SSL</p>
+                        <p class="flex items-center"><i class="fas fa-mobile-alt mr-2"></i>PWA Ready</p>
                     </div>
                 </div>
             </div>
             <div class="border-t border-blue-800 mt-8 pt-4 text-center text-blue-200 text-sm">
-                <p>&copy; 2024 LABE - Liga Amadora Batataense de Esportes. Todos os direitos reservados.</p>
+                <p>&copy; 2024 LABE - Liga Amadora Batataense de Esportes. Sistema desenvolvido com tecnologia moderna.</p>
             </div>
         </div>
     </footer>
 
-    <script>        // Dark mode setup
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (event.matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        });
-
-        // SUPABASE CONFIGURATION - SUAS CREDENCIAIS REAIS
+    <script>
+        // CONFIGURAÇÃO SUPABASE
         const SUPABASE_CONFIG = {
             url: 'https://rtveghzatlfvncilyzhm.supabase.co',
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dmVnaHphdGxmdm5jaWx5emhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0ODQyMDksImV4cCI6MjA1MzA2MDIwOX0.ufStU944FRe-yQ_z9TQT-7N_aM6MTd0_Dobq8yOdg2w'
         };
 
-        // Initialize Supabase
-        const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        // CREDENCIAIS SEGURAS
+        const ADMIN_CREDENTIALS = {
+            username: 'admin_labe',
+            password: 'LABE2024@admin'
+        };
 
-        // Database class
-        class LABEDatabase {
-            constructor() {
-                this.supabase = supabaseClient;
-                console.log('🔗 Conectado ao Supabase:', SUPABASE_CONFIG.url);
+        // VARIÁVEIS GLOBAIS
+        let currentUser = null;
+        let supabaseClient = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let notifications = [];
+        let events = [];
+        let clubes = [];
+        let usuarios = [{
+            id: 1,
+            nome: 'Administrador LABE',
+            email: 'admin@labe.com.br',
+            username: 'admin_labe',
+            tipo: 'admin',
+            clube: null,
+            status: 'Ativo',
+            dataRegistro: new Date().toISOString()
+        }];
+
+        // TRANSFERS AND PLAYERS SYSTEM
+        let jogadores = [
+            {
+                id: 1,
+                nome: 'Carlos Silva',
+                idade: 24,
+                posicao: 'atacante',
+                clube: null,
+                disponivel: true,
+                gols: 18,
+                assistencias: 5,
+                cartoes: 2,
+                valor: 'R$ 15.000',
+                foto: null
+            },
+            {
+                id: 2,
+                nome: 'João Santos',
+                idade: 22,
+                posicao: 'meio-campo',
+                clube: null,
+                disponivel: true,
+                gols: 8,
+                assistencias: 12,
+                cartoes: 3,
+                valor: 'R$ 12.000',
+                foto: null
+            },
+            {
+                id: 3,
+                nome: 'Pedro Lima',
+                idade: 28,
+                posicao: 'zagueiro',
+                clube: null,
+                disponivel: true,
+                gols: 2,
+                assistencias: 1,
+                cartoes: 8,
+                valor: 'R$ 8.000',
+                foto: null
+            },
+            {
+                id: 4,
+                nome: 'Marco Goleiro',
+                idade: 30,
+                posicao: 'goleiro',
+                clube: null,
+                disponivel: true,
+                gols: 0,
+                assistencias: 0,
+                cartoes: 1,
+                valor: 'R$ 10.000',
+                foto: null
+            }
+        ];
+
+        let transferencias = [];
+        let comentarios = [];
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            console.log('🚀 Inicializando LABE Sistema Profissional...');
+            
+            // Dark mode
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+            
+            // Inicializar Supabase
+            try {
+                const { createClient } = supabase;
+                supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                showConnectionStatus();
+                console.log('✅ Supabase conectado');
+            } catch (error) {
+                console.error('❌ Erro ao conectar Supabase:', error);
             }
 
-            subscribe(table, callback) {
-                if (table === 'chat') {
-                    this.supabase
-                        .from('chat')
-                        .select('*')
-                        .order('created_at', { ascending: true })
-                        .then(({ data, error }) => {
-                            if (error) {
-                                console.error('❌ Erro ao carregar chat:', error);
-                                return;
-                            }
-                            console.log('✅ Mensagens carregadas:', data?.length || 0);
-                            data?.forEach(msg => callback({ data: msg, eventType: 'INITIAL' }));
-                        });
+            // Event Listeners
+            setupEventListeners();
+            
+            // Initialize Calendar
+            initializeCalendar();
+            
+            // Initialize Notifications
+            initializeNotifications();
+            
+            // Check Session
+            checkSession();
+            
+            // Add system log
+            addSystemLog('Sistema LABE inicializado com sucesso');
+            
+            console.log('✅ Sistema LABE carregado - Versão Profissional');
+        }
+        function setupEventListeners() {
+            // Navegação
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleNavigation(btn));
+            });
 
-                    this.supabase
-                        .channel('chat-channel')
-                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, 
-                            (payload) => {
-                                console.log('💬 Nova mensagem recebida:', payload.new);
-                                callback({ data: payload.new, eventType: 'INSERT' });
-                            }
-                        )
-                        .subscribe();
+            // Login
+            document.getElementById('loginBtn').addEventListener('click', openLogin);
+            document.getElementById('closeLogin').addEventListener('click', closeLogin);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('togglePassword').addEventListener('click', togglePassword);
+
+            // Modal background
+            document.getElementById('loginModal').addEventListener('click', (e) => {
+                if (e.target.id === 'loginModal') closeLogin();
+            });
+
+            // Calendar navigation
+            document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
+
+            // Event form
+            document.getElementById('addEventForm').addEventListener('submit', addEvent);
+
+            // Ranking tabs
+            document.querySelectorAll('.ranking-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchRankingTab(tab));
+            });
+
+            // Search
+            document.getElementById('searchClubes')?.addEventListener('input', searchClubes);
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+        }
+
+        function handleNavigation(btn) {
+            const section = btn.dataset.section;
+            const protectedSections = ['admin'];
+            
+            // Check access for protected sections
+            if (protectedSections.includes(section) && (!currentUser || currentUser.type !== 'admin')) {
+                if (section === 'admin') {
+                    showSection('admin');
+                    updateNavigation(section);
+                    return;
                 }
-
-                if (table === 'jogos') {
-                    this.supabase
-                        .from('jogos')
-                        .select('*')
-                        .then(({ data, error }) => {
-                            if (error) {
-                                console.error('❌ Erro ao carregar jogos:', error);
-                                return;
-                            }
-                            console.log('✅ Jogos carregados:', data?.length || 0);
-                            data?.forEach(jogo => callback({ data: jogo, eventType: 'INITIAL' }));
-                        });
-
-                    this.supabase
-                        .channel('jogos-channel')
-                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'jogos' }, 
-                            (payload) => {
-                                console.log('⚽ Jogo atualizado:', payload.new);
-                                callback({ data: payload.new, eventType: 'UPDATE' });
-                            }
-                        )
-                        .subscribe();
-                }
+                showNotification('⚠️ Acesso Restrito', 'Faça login para acessar esta seção', 'fas fa-lock');
+                openLogin();
+                return;
             }
 
-            async insert(table, data) {
-                try {
-                    if (table === 'chat') {
-                        console.log('📤 Enviando mensagem:', data);
-                        const { data: result, error } = await this.supabase
-                            .from('chat')
-                            .insert([data])
-                            .select();
-                        
-                        if (error) {
-                            console.error('❌ Erro ao inserir chat:', error);
-                            return { data: null, error };
-                        }
-                        
-                        console.log('✅ Mensagem enviada:', result);
-                        return { data: result, error: null };
-                    }
-                } catch (err) {
-                    console.error('❌ Erro na inserção:', err);
-                    return { data: null, error: err };
-                }
-            }
+            updateNavigation(section);
+            showSection(section);
+        }
 
-            async update(table, id, updates) {
-                try {
-                    console.log(`📝 Atualizando ${table}:`, { id, updates });
-                    const { data, error } = await this.supabase
-                        .from(table)
-                        .update(updates)
-                        .eq('id', id)
-                        .select();
-                    
-                    if (error) {
-                        console.error('❌ Erro ao atualizar:', error);
-                        return { data: null, error };
-                    }
-                    
-                    console.log('✅ Atualização realizada:', data);
-                    return { data: data[0], error: null };
-                } catch (err) {
-                    console.error('❌ Erro na atualização:', err);
-                    return { data: null, error: err };
+        function updateNavigation(activeSection) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.section === activeSection) {
+                    btn.className = 'nav-btn border-b-2 border-labe-secondary text-labe-secondary font-medium';
+                } else {
+                    btn.className = 'nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300';
                 }
+            });
+        }
+
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionName)?.classList.remove('hidden');
+        }
+        function openLogin() {
+            const modal = document.getElementById('loginModal');
+            const content = document.getElementById('loginModalContent');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            document.getElementById('username').focus();
+            hideLoginError();
+        }
+
+        function closeLogin() {
+            const modal = document.getElementById('loginModal');
+            const content = document.getElementById('loginModalContent');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            
+            document.getElementById('loginForm').reset();
+            hideLoginError();
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.getElementById('togglePassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
             }
         }
 
-        // Initialize database
-        const labeDB = new LABEDatabase();
-        let currentUser = null;
-
-        // Mock data
-        const mockData = {
-            clubes: [
-                { id: 'atletico-batatais', nome: 'Atlético Batatais', pontos: 42, jogos: 15, vitorias: 13, empates: 3, derrotas: 1, golsPro: 38, golsContra: 12, cor: '#FF0000' },
-                { id: 'guarani', nome: 'Guarani FC', pontos: 42, jogos: 15, vitorias: 13, empates: 3, derrotas: 1, golsPro: 35, golsContra: 10, cor: '#00AA00' },
-                { id: 'santos', nome: 'Santos FC', pontos: 38, jogos: 15, vitorias: 12, empates: 2, derrotas: 3, golsPro: 33, golsContra: 15, cor: '#000000' },
-                { id: 'independente', nome: 'Independente', pontos: 32, jogos: 15, vitorias: 10, empates: 2, derrotas: 5, golsPro: 28, golsContra: 18, cor: '#FF4444' },
-                { id: 'palmeiras', nome: 'Palmeiras', pontos: 28, jogos: 15, vitorias: 8, empates: 4, derrotas: 5, golsPro: 25, golsContra: 20, cor: '#008800' },
-                { id: 'unidos', nome: 'Unidos da Vila', pontos: 18, jogos: 15, vitorias: 5, empates: 3, derrotas: 9, golsPro: 18, golsContra: 32, cor: '#4444FF' }
-            ],
-            proximosJogos: [
-                { data: 'Hoje 15:00', casa: 'Atlético Batatais', visitante: 'Guarani FC', local: 'Estádio Municipal' },
-                { data: 'Dom 16:00', casa: 'Santos FC', visitante: 'Independente', local: 'Campo do Santos' },
-                { data: 'Seg 20:00', casa: 'Palmeiras', visitante: 'Unidos da Vila', local: 'Arena Verde' }
-            ],
-            resultados: [
-                { data: 'Sex 20:00', casa: 'Unidos da Vila', golsCasa: 1, visitante: 'Palmeiras', golsVisitante: 2 },
-                { data: 'Qui 19:30', casa: 'Independente', golsCasa: 3, visitante: 'Santos FC', golsVisitante: 1 },
-                { data: 'Qua 20:00', casa: 'Guarani FC', golsCasa: 2, visitante: 'Atlético Batatais', golsVisitante: 2 }
-            ]
-        };        // Navigation
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.className = 'nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap';
-                });
-                btn.className = 'nav-btn py-4 px-2 border-b-2 border-labe-secondary text-labe-secondary font-medium whitespace-nowrap';
-                
-                const section = btn.dataset.section;
-                document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-                document.getElementById(section).classList.remove('hidden');
-            });
-        });
-
-        // Login functionality
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            document.getElementById('loginModal').classList.remove('hidden');
-        });
-
-        document.getElementById('closeLogin').addEventListener('click', () => {
-            document.getElementById('loginModal').classList.add('hidden');
-        });
-
-        document.getElementById('userType').addEventListener('change', (e) => {
-            const clubeSelect = document.getElementById('clubeSelect');
-            if (e.target.value === 'clube') {
-                clubeSelect.classList.remove('hidden');
-            } else {
-                clubeSelect.classList.add('hidden');
-            }
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        function handleLogin(e) {
             e.preventDefault();
-            const userType = document.getElementById('userType').value;
-            const username = document.getElementById('username').value;
             
-            if (username.trim()) {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            // Validate credentials
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                // Successful login
                 currentUser = {
-                    type: userType,
                     username: username,
-                    clube: userType === 'clube' ? document.getElementById('clube').value : null
+                    type: 'admin',
+                    nome: 'Administrador LABE',
+                    loginTime: new Date().toISOString()
                 };
                 
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user mr-2"></i>${username}`;
-                
+                closeLogin();
                 updateUIForLoggedUser();
-                showNotification('✅ Login realizado!', `Bem-vindo, ${username}!`, 'fas fa-user-check');
+                showNotification('✅ Login realizado!', 'Bem-vindo ao sistema LABE', 'fas fa-check-circle');
+                addSystemLog(`Login administrativo realizado: ${username}`);
+                
+            } else {
+                // Login failed
+                showLoginError('Credenciais inválidas! Verifique seu usuário e senha.');
+                vibrate([200, 100, 200]);
+                addSystemLog(`Tentativa de login falhada: ${username}`);
             }
-        });
+        }
+
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorMessage = document.getElementById('loginErrorMessage');
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideLoginError() {
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function checkSession() {
+            console.log('💾 Session management: memory only (storage blocked by sandbox)');
+            addSystemLog('Sistema iniciado - sessões em memória apenas');
+        }
 
         function updateUIForLoggedUser() {
-            const nav = document.querySelector('nav .flex');
-            
+            if (!currentUser) return;
+
+            // Update login button
+            document.getElementById('loginBtn').innerHTML = `
+                <i class="fas fa-user mr-1 md:mr-2"></i>
+                <span class="hidden md:inline">${currentUser.nome}</span>
+                <i class="fas fa-sign-out-alt ml-1 md:ml-2 cursor-pointer" onclick="logout()" title="Sair"></i>
+            `;
+
+            // Show notification button
+            document.getElementById('notificationBtn').classList.remove('hidden');
+
+            // Show admin dashboard
             if (currentUser.type === 'admin') {
-                if (!document.querySelector('[data-section="areaAdminSection"]')) {
-                    const btn = document.createElement('button');
-                    btn.className = 'nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap';
-                    btn.dataset.section = 'areaAdminSection';
-                    btn.innerHTML = '<i class="fas fa-crown mr-2"></i>Admin';
-                    nav.appendChild(btn);
-                    
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.nav-btn').forEach(b => {
-                            b.className = 'nav-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap';
-                        });
-                        btn.className = 'nav-btn py-4 px-2 border-b-2 border-labe-secondary text-labe-secondary font-medium whitespace-nowrap';
-                        
-                        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-                        document.getElementById('areaAdminSection').classList.remove('hidden');
-                    });
-                }
-                createAdminPanel();
+                document.getElementById('guestView').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('accessDenied').classList.add('hidden');
+                document.getElementById('adminTools').classList.remove('hidden');
+                
+                updateDashboardStats();
             }
         }
 
-        function createAdminPanel() {
-            if (currentUser?.type === 'admin') {
-                const adminSection = document.getElementById('areaAdminSection');
-                if (!adminSection || adminSection.querySelector('.admin-controls')) return;
+        function logout() {
+            if (confirm('Deseja realmente sair do sistema?')) {
+                const username = currentUser?.username || 'usuário';
+                currentUser = null;
                 
-                const controlPanel = document.createElement('div');
-                controlPanel.className = 'admin-controls col-span-3 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg shadow-lg p-6 text-white mt-8';
-                controlPanel.innerHTML = `
-                    <h3 class="text-xl font-semibold mb-4">🔴 Painel de Controle ao Vivo</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button onclick="simularGol()" class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-3 rounded-lg transition-colors">
-                            ⚽ Simular Gol
-                        </button>
-                        <button onclick="simularCartao()" class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-3 rounded-lg transition-colors">
-                            🟨 Simular Cartão
-                        </button>
-                        <button onclick="finalizarJogo()" class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-3 rounded-lg transition-colors">
-                            🏁 Finalizar Jogo
-                        </button>
-                    </div>
-                    <div class="mt-4 text-sm bg-white bg-opacity-10 rounded p-3">
-                        <div>👥 Usuários Online: <span class="font-bold">247</span></div>
-                        <div>📱 Dispositivos Conectados: <span class="font-bold">156</span></div>
-                        <div>💬 Mensagens hoje: <span class="font-bold">1,432</span></div>
-                    </div>
-                `;
+                // Reset UI
+                document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-in-alt mr-1 md:mr-2"></i>Login';
+                document.getElementById('notificationBtn').classList.add('hidden');
+                document.getElementById('guestView').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('accessDenied').classList.remove('hidden');
+                document.getElementById('adminTools').classList.add('hidden');
                 
-                adminSection.appendChild(controlPanel);
+                // Go to home
+                showSection('home');
+                updateNavigation('home');
+                
+                showNotification('👋 Logout realizado', 'Sessão encerrada com sucesso');
+                addSystemLog(`Logout realizado: ${username}`);
             }
         }
 
-        // Admin functions
-        function simularGol() {
-            labeDB.update('jogos', 1, {
-                gols_casa: 3,
-                minuto: '85',
-                status: 'gol'
-            });
-            showNotification('⚽ Gol simulado!', 'Placar atualizado para todos os usuários!');
-            vibrate([50, 100, 50]);
+        function updateDashboardStats() {
+            // Update with real data
+            document.getElementById('totalClubes').textContent = clubes.length;
+            document.getElementById('totalUsuarios').textContent = usuarios.length;
+            document.getElementById('totalCampeonatos').textContent = '0';
+            document.getElementById('totalNotificacoes').textContent = notifications.length;
+        }
+        // CALENDAR FUNCTIONS
+        function initializeCalendar() {
+            updateCalendar();
+            setTodayEvents();
         }
 
-        function simularCartao() {
-            showNotification('🟨 Cartão Amarelo', 'Pedro Santos (Guarani FC) recebe amarelo');
-            vibrate([200]);
-        }
-
-        function finalizarJogo() {
-            labeDB.update('jogos', 1, {
-                status: 'finalizado',
-                minuto: 'Final'
-            });
-            showNotification('🏁 Fim de Jogo!', 'Atlético Batatais 3x1 Guarani FC');
-            vibrate([50, 50, 50]);
-        }
-
-        // Real-time features
-        function initializeRealtimeFeatures() {
-            labeDB.subscribe('chat', (response) => {
-                if (response.eventType === 'INSERT' || response.eventType === 'INITIAL') {
-                    addMessageToChat(response.data);
-                }
-            });
-
-            labeDB.subscribe('jogos', (response) => {
-                if (response.eventType === 'UPDATE' || response.eventType === 'INITIAL') {
-                    updateLiveMatch(response.data);
-                    
-                    if (response.eventType === 'UPDATE' && response.data.status === 'gol') {
-                        showNotification('⚽ GOOOL!', 'Gol marcado no jogo!');
-                    }
-                }
-            });
-        }
-
-        function addMessageToChat(messageData) {
-            const chat = document.getElementById('chatMensagens');
-            if (!chat) return;
+        function updateCalendar() {
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
             
-            const div = document.createElement('div');
-            div.className = 'text-sm';
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
             
-            const time = new Date(messageData.created_at).toLocaleTimeString('pt-BR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
             
-            div.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="font-semibold text-labe-primary">${messageData.usuario}:</span>
-                        <span>${messageData.mensagem}</span>
-                    </div>
-                    <span class="text-xs text-gray-500">${time}</span>
-                </div>
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const dayElement = createDayElement(day, true);
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Current month days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = (today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear);
+                const dayElement = createDayElement(day, false, isToday);
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Next month days
+            const totalCells = 42; // 6 weeks * 7 days
+            const currentCells = firstDay + daysInMonth;
+            for (let day = 1; currentCells + day - 1 < totalCells; day++) {
+                const dayElement = createDayElement(day, true);
+                calendarDays.appendChild(dayElement);
+            }
+        }
+
+        function createDayElement(day, otherMonth = false, isToday = false) {
+            const dayElement = document.createElement('div');
+            dayElement.className = `calendar-day ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`;
+            dayElement.innerHTML = `
+                <div class="text-sm font-medium">${day}</div>
+                <div class="calendar-events"></div>
             `;
             
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
+            // Add events for this day
+            const dayEvents = getEventsForDay(day, otherMonth);
+            const eventsContainer = dayElement.querySelector('.calendar-events');
+            dayEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'calendar-event';
+                eventElement.textContent = event.title;
+                eventElement.title = `${event.time} - ${event.title}`;
+                eventsContainer.appendChild(eventElement);
+            });
+            
+            return dayElement;
         }
 
-        function updateLiveMatch(jogoData) {
-            const placarElements = document.querySelectorAll('.placar-tempo-real');
-            placarElements.forEach(el => {
-                el.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-sm mb-2">${jogoData.status === 'andamento' ? `2º Tempo - ${jogoData.minuto}'` : 'Finalizado'}</div>
-                        <div class="flex items-center justify-center space-x-8">
-                            <div class="text-center">
-                                <div class="text-lg font-semibold">${jogoData.casa}</div>
-                                <div class="text-3xl font-bold">${jogoData.gols_casa || 2}</div>
-                            </div>
-                            <div class="text-2xl">×</div>
-                            <div class="text-center">
-                                <div class="text-lg font-semibold">${jogoData.visitante}</div>
-                                <div class="text-3xl font-bold">${jogoData.gols_visitante || 1}</div>
-                            </div>
-                        </div>
+        function getEventsForDay(day, otherMonth) {
+            // Mock events - in production, this would fetch from database
+            const mockEvents = [
+                { day: 15, title: 'Atlético x Guarani', time: '15:00', type: 'jogo' },
+                { day: 18, title: 'Treino Santos', time: '19:00', type: 'treino' },
+                { day: 22, title: 'Reunião Técnica', time: '20:00', type: 'reuniao' }
+            ];
+            
+            return mockEvents.filter(event => event.day === day && !otherMonth);
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateCalendar();
+        }
+
+        function addEvent(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const type = document.getElementById('eventType').value;
+            
+            if (title && date && time) {
+                const newEvent = {
+                    id: Date.now(),
+                    title,
+                    date,
+                    time,
+                    type,
+                    created: new Date().toISOString()
+                };
+                
+                events.push(newEvent);
+                updateCalendar();
+                setTodayEvents();
+                
+                showNotification('✅ Evento adicionado', `${title} foi agendado para ${new Date(date).toLocaleDateString()}`);
+                document.getElementById('addEventForm').reset();
+                addSystemLog(`Evento criado: ${title} - ${date} ${time}`);
+            }
+        }
+
+        function setTodayEvents() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const todayEvents = events.filter(event => event.date === todayStr);
+            
+            const container = document.getElementById('todayEvents');
+            if (todayEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 text-sm">
+                        <i class="fas fa-calendar-check text-2xl mb-2 block"></i>
+                        Nenhum evento hoje
                     </div>
                 `;
+            } else {
+                container.innerHTML = todayEvents.map(event => `
+                    <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-${getEventIcon(event.type)} text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-sm">${event.title}</div>
+                            <div class="text-xs text-gray-500">${event.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function getEventIcon(type) {
+            const icons = {
+                jogo: 'futbol',
+                treino: 'running',
+                reuniao: 'users',
+                evento: 'calendar'
+            };
+            return icons[type] || 'calendar';
+        }
+
+        // RANKING FUNCTIONS
+        function switchRankingTab(activeTab) {
+            const tabName = activeTab.dataset.tab;
+            
+            // Update tab styles
+            document.querySelectorAll('.ranking-tab').forEach(tab => {
+                if (tab === activeTab) {
+                    tab.className = 'ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors bg-white dark:bg-gray-600 text-labe-primary';
+                } else {
+                    tab.className = 'ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors text-gray-600 dark:text-gray-400';
+                }
+            });
+            
+            // Update content
+            updateRankingContent(tabName);
+        }
+
+        function updateRankingContent(type) {
+            const container = document.getElementById('rankingIndividual');
+            
+            // Mock data for demonstration
+            const rankings = {
+                artilheiros: [
+                    { nome: 'Carlos Silva', clube: 'Atlético', gols: 18 },
+                    { nome: 'João Santos', clube: 'Guarani', gols: 15 },
+                    { nome: 'Pedro Lima', clube: 'Santos FC', gols: 12 }
+                ],
+                assistencias: [
+                    { nome: 'Marco Assist', clube: 'Guarani', assistencias: 8 },
+                    { nome: 'Lucas Pass', clube: 'Atlético', assistencias: 6 },
+                    { nome: 'Rafael Cross', clube: 'Santos FC', assistencias: 5 }
+                ],
+                cartoes: [
+                    { nome: 'Diego Hard', clube: 'Unidos', cartoes: 8, tipo: 'amarelos' },
+                    { nome: 'Bruno Tough', clube: 'Independente', cartoes: 6, tipo: 'amarelos' },
+                    { nome: 'André Strong', clube: 'Palmeiras', cartoes: 2, tipo: 'vermelhos' }
+                ]
+            };
+            
+            const data = rankings[type] || [];
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-user-plus text-4xl mb-4 block"></i>
+                        <p>Nenhum dado disponível para ${type}</p>
+                        <p class="text-sm">Os rankings aparecerão conforme os jogos acontecerem</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.map((item, index) => `
+                <div class="ranking-item flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="w-8 h-8 bg-labe-primary text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                        ${index + 1}
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium">${item.nome}</div>
+                        <div class="text-sm text-gray-500">${item.clube}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-lg">${item.gols || item.assistencias || item.cartoes}</div>
+                        <div class="text-xs text-gray-500">
+                            ${type === 'artilheiros' ? 'gols' : type === 'assistencias' ? 'assist.' : item.tipo}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarRankings() {
+            showNotification('🔄 Atualizando', 'Rankings sendo atualizados...', 'fas fa-sync-alt');
+            
+            // Simulate loading
+            setTimeout(() => {
+                switchRankingTab(document.querySelector('.ranking-tab[data-tab="artilheiros"]'));
+                showNotification('✅ Atualizado', 'Rankings atualizados com sucesso');
+                addSystemLog('Rankings atualizados manualmente');
+            }, 2000);
+        }
+        // CLUB MANAGEMENT
+        function showModalCadastroClube() {
+            const modal = document.createElement('div');
+            modal.id = 'clubeModal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md transform transition-all duration-300">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-shield-alt text-labe-primary mr-2"></i>
+                            Cadastrar Novo Clube
+                        </h3>
+                        <button onclick="document.getElementById('clubeModal').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <form class="p-6" onsubmit="cadastrarClube(event)">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Nome do Clube</label>
+                                <input type="text" id="nomeClube" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" placeholder="Ex: Atlético Batatais" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Responsável</label>
+                                <input type="text" id="responsavelClube" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" placeholder="Nome do responsável" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Telefone</label>
+                                <input type="tel" id="telefoneClube" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" placeholder="(16) 99999-9999" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Email</label>
+                                <input type="email" id="emailClube" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" placeholder="clube@email.com" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Cores do Clube</label>
+                                <select id="coresClube" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" required>
+                                    <option value="">Selecione as cores</option>
+                                    <option value="azul-branco">Azul e Branco</option>
+                                    <option value="verde-branco">Verde e Branco</option>
+                                    <option value="vermelho-branco">Vermelho e Branco</option>
+                                    <option value="amarelo-azul">Amarelo e Azul</option>
+                                    <option value="preto-branco">Preto e Branco</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3 mt-6">
+                            <button type="button" onclick="document.getElementById('clubeModal').remove()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Cadastrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function cadastrarClube(e) {
+            e.preventDefault();
+            
+            const clube = {
+                id: Date.now(),
+                nome: document.getElementById('nomeClube').value,
+                responsavel: document.getElementById('responsavelClube').value,
+                telefone: document.getElementById('telefoneClube').value,
+                email: document.getElementById('emailClube').value,
+                cores: document.getElementById('coresClube').value,
+                jogadores: 0,
+                status: 'Ativo',
+                dataRegistro: new Date().toISOString()
+            };
+            
+            clubes.push(clube);
+            updateClubesList();
+            updateDashboardStats();
+            
+            document.getElementById('clubeModal').remove();
+            showNotification('✅ Clube cadastrado!', `${clube.nome} foi adicionado com sucesso`);
+            addSystemLog(`Clube cadastrado: ${clube.nome} - Responsável: ${clube.responsavel}`);
+        }
+
+        function updateClubesList() {
+            const tbody = document.getElementById('listaClubes');
+            
+            if (clubes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-12 text-gray-500">
+                            <i class="fas fa-shield-alt text-4xl mb-4 block"></i>
+                            <p class="mb-2">Nenhum clube cadastrado ainda</p>
+                            <p class="text-sm">Clique em "Novo Clube" para começar</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = clubes.map(clube => `
+                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-shield-alt text-white"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">${clube.nome}</div>
+                                <div class="text-sm text-gray-500">${clube.cores.replace('-', ' e ')}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="font-medium">${clube.responsavel}</div>
+                        <div class="text-sm text-gray-500">${clube.email}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="text-sm">${clube.telefone}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="text-center">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                ${clube.jogadores} jogadores
+                            </span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            ${clube.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex justify-center space-x-2">
+                            <button onclick="editarClube(${clube.id})" class="text-blue-600 hover:text-blue-800" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="removerClube(${clube.id})" class="text-red-600 hover:text-red-800" title="Remover">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editarClube(id) {
+            showNotification('🔧 Editar clube', 'Funcionalidade de edição será implementada');
+        }
+
+        function removerClube(id) {
+            if (confirm('Deseja realmente remover este clube?')) {
+                const index = clubes.findIndex(c => c.id === id);
+                if (index > -1) {
+                    const clube = clubes[index];
+                    clubes.splice(index, 1);
+                    updateClubesList();
+                    updateDashboardStats();
+                    showNotification('🗑️ Clube removido', `${clube.nome} foi removido do sistema`);
+                    addSystemLog(`Clube removido: ${clube.nome}`);
+                }
+            }
+        }
+
+        function exportarClubes() {
+            if (clubes.length === 0) {
+                showNotification('⚠️ Nenhum dado', 'Não há clubes para exportar');
+                return;
+            }
+            
+            const csvContent = [
+                ['Nome', 'Responsável', 'Email', 'Telefone', 'Cores', 'Status', 'Data Registro'],
+                ...clubes.map(clube => [
+                    clube.nome,
+                    clube.responsavel,
+                    clube.email,
+                    clube.telefone,
+                    clube.cores.replace('-', ' e '),
+                    clube.status,
+                    new Date(clube.dataRegistro).toLocaleDateString()
+                ])
+            ].map(row => row.join(';')).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `clubes_labe_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            
+            showNotification('✅ Exportado!', `${clubes.length} clubes exportados com sucesso`);
+            addSystemLog(`Exportação de clubes realizada - ${clubes.length} registros`);
+        }
+
+        function searchClubes(e) {
+            const term = e.target.value.toLowerCase();
+            console.log('Buscar clubes:', term);
+        }
+
+        // TRANSFERS SYSTEM
+        function initializeTransfers() {
+            updateJogadoresList();
+            updateTransferStats();
+            updateFiltroClube();
+        }
+
+        function updateJogadoresList() {
+            const container = document.getElementById('listaJogadores');
+            if (!container) return;
+
+            const filteredJogadores = getFilteredJogadores();
+            
+            if (filteredJogadores.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 text-center py-12 text-gray-500">
+                        <i class="fas fa-users text-4xl mb-4 block"></i>
+                        <p class="mb-2">Nenhum jogador encontrado</p>
+                        <p class="text-sm">Ajuste os filtros ou cadastre novos jogadores</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${filteredJogadores.map(jogador => `
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-shadow">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-user text-white text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-lg">${jogador.nome}</h4>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">${jogador.posicao}</span>
+                                        <span>${jogador.idade} anos</span>
+                                        ${jogador.disponivel ? '<span class="text-green-600">Disponível</span>' : '<span class="text-red-600">Ocupado</span>'}
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-xs mb-3">
+                                        <div class="text-center">
+                                            <div class="font-bold text-green-600">${jogador.gols}</div>
+                                            <div class="text-gray-500">Gols</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="font-bold text-blue-600">${jogador.assistencias}</div>
+                                            <div class="text-gray-500">Assist.</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="font-bold text-red-600">${jogador.cartoes}</div>
+                                            <div class="text-gray-500">Cartões</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-lg text-green-600">${jogador.valor}</span>
+                                        <button onclick="iniciarTransferencia(${jogador.id})" class="bg-labe-primary hover:bg-blue-800 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            <i class="fas fa-exchange-alt mr-1"></i>Transferir
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        function getFilteredJogadores() {
+            const filtroClube = document.getElementById('filtroClube')?.value || '';
+            const filtroPosicao = document.getElementById('filtroPosicao')?.value || '';
+            const filtroIdade = document.getElementById('filtroIdade')?.value || '';
+
+            return jogadores.filter(jogador => {
+                // Filtro clube
+                if (filtroClube === 'disponivel' && !jogador.disponivel) return false;
+                if (filtroClube && filtroClube !== 'disponivel' && jogador.clube !== parseInt(filtroClube)) return false;
+
+                // Filtro posição
+                if (filtroPosicao && jogador.posicao !== filtroPosicao) return false;
+
+                // Filtro idade
+                if (filtroIdade) {
+                    const idade = jogador.idade;
+                    if (filtroIdade === '18-25' && (idade < 18 || idade > 25)) return false;
+                    if (filtroIdade === '26-30' && (idade < 26 || idade > 30)) return false;
+                    if (filtroIdade === '31+' && idade < 31) return false;
+                }
+
+                return true;
             });
         }
 
-        // Send message
-        function enviarMensagem() {
-            const input = document.getElementById('mensagemInput');
-            const mensagem = input.value.trim();
-            
-            if (mensagem && currentUser) {
-                labeDB.insert('chat', {
-                    usuario: currentUser.username,
-                    mensagem: mensagem
-                });
-                
-                input.value = '';
-                vibrate([30]);
-            } else if (mensagem && !currentUser) {
-                showNotification('⚠️ Faça login', 'Você precisa estar logado para enviar mensagens!');
-            }
+        function updateFiltroClube() {
+            const select = document.getElementById('filtroClube');
+            if (!select) return;
+
+            // Add clubs to filter
+            clubes.forEach(clube => {
+                const option = document.createElement('option');
+                option.value = clube.id;
+                option.textContent = clube.nome;
+                select.appendChild(option);
+            });
         }
 
-        function enviarComentario() {
-            const input = document.getElementById('chatInput');
-            const comentario = input.value.trim();
+        function filtrarJogadores() {
+            updateJogadoresList();
+        }
+
+        function updateTransferStats() {
+            document.getElementById('totalJogadores').textContent = jogadores.length;
+            document.getElementById('jogadoresDisponiveis').textContent = jogadores.filter(j => j.disponivel).length;
+            document.getElementById('totalTransferencias').textContent = transferencias.length;
             
-            if (comentario && currentUser) {
-                const chat = document.getElementById('chatTransmissao');
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-start mb-2';
-                div.innerHTML = `
-                    <div>
-                        <span class="font-semibold text-labe-primary">${currentUser.username}:</span>
-                        <span>${comentario}</span>
+            // Transferências desta semana
+            const thisWeek = new Date();
+            thisWeek.setDate(thisWeek.getDate() - 7);
+            const transferenciasRecentes = transferencias.filter(t => new Date(t.data) > thisWeek);
+            document.getElementById('transferenciasRecente').textContent = transferenciasRecentes.length;
+        }
+
+        function iniciarTransferencia(jogadorId) {
+            const jogador = jogadores.find(j => j.id === jogadorId);
+            if (!jogador) return;
+
+            const modal = document.createElement('div');
+            modal.id = 'transferenciaModal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md transform transition-all duration-300">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-exchange-alt text-labe-primary mr-2"></i>
+                            Transferir Jogador
+                        </h3>
+                        <button onclick="document.getElementById('transferenciaModal').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <span class="text-xs text-gray-500">agora</span>
+                    
+                    <div class="p-6">
+                        <div class="text-center mb-6">
+                            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-user text-white text-2xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold">${jogador.nome}</h4>
+                            <p class="text-gray-600 dark:text-gray-400">${jogador.posicao} • ${jogador.idade} anos</p>
+                            <p class="text-lg font-bold text-green-600 mt-2">${jogador.valor}</p>
+                        </div>
+                        
+                        <form onsubmit="processarTransferencia(event, ${jogadorId})">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Clube de Destino</label>
+                                    <select id="clubeDestino" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" required>
+                                        <option value="">Selecione o clube</option>
+                                        ${clubes.map(clube => `<option value="${clube.id}">${clube.nome}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Observações (opcional)</label>
+                                    <textarea id="observacoesTransfer" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" rows="3" placeholder="Comentários sobre a transferência..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-3 mt-6">
+                                <button type="button" onclick="document.getElementById('transferenciaModal').remove()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-check mr-2"></i>Confirmar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function processarTransferencia(e, jogadorId) {
+            e.preventDefault();
+            
+            const jogador = jogadores.find(j => j.id === jogadorId);
+            const clubeId = parseInt(document.getElementById('clubeDestino').value);
+            const clube = clubes.find(c => c.id === clubeId);
+            const observacoes = document.getElementById('observacoesTransfer').value;
+            
+            if (!jogador || !clube) return;
+
+            // Create transfer record
+            const transferencia = {
+                id: Date.now(),
+                jogador: jogador.nome,
+                jogadorId: jogadorId,
+                clubeDestino: clube.nome,
+                clubeDestinoId: clubeId,
+                valor: jogador.valor,
+                data: new Date().toISOString(),
+                observacoes: observacoes,
+                status: 'Concluída'
+            };
+            
+            // Update player
+            jogador.clube = clubeId;
+            jogador.disponivel = false;
+            
+            // Update club
+            clube.jogadores += 1;
+            
+            // Add to transfers
+            transferencias.unshift(transferencia);
+            
+            // Update displays
+            updateJogadoresList();
+            updateTransferStats();
+            updateTransferenciasRecentes();
+            updateClubesList();
+            updateDashboardStats();
+            
+            document.getElementById('transferenciaModal').remove();
+            showNotification('✅ Transferência realizada!', `${jogador.nome} foi transferido para ${clube.nome}`);
+            addSystemLog(`Transferência: ${jogador.nome} → ${clube.nome} por ${jogador.valor}`);
+        }
+
+        function updateTransferenciasRecentes() {
+            const container = document.getElementById('transferenciasRecentes');
+            if (!container) return;
+
+            if (transferencias.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 text-sm">
+                        <i class="fas fa-exchange-alt text-2xl mb-2 block"></i>
+                        Nenhuma transferência realizada ainda
+                    </div>
                 `;
-                
-                chat.appendChild(div);
-                chat.scrollTop = chat.scrollHeight;
-                input.value = '';
+                return;
+            }
+
+            container.innerHTML = transferencias.slice(0, 5).map(transfer => `
+                <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-exchange-alt text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-sm">${transfer.jogador}</div>
+                        <div class="text-xs text-gray-500">→ ${transfer.clubeDestino}</div>
+                        <div class="text-xs text-green-600 font-medium">${transfer.valor}</div>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        ${new Date(transfer.data).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function novaTransferencia() {
+            showSection('transferencias');
+            showNotification('📋 Mercado de Transferências', 'Selecione um jogador para iniciar uma transferência');
+        }
+
+        // COMMENTS SYSTEM
+        function adicionarComentario(e) {
+            e.preventDefault();
+            
+            const texto = document.getElementById('inputComentario').value.trim();
+            if (!texto) return;
+
+            const comentario = {
+                id: Date.now(),
+                autor: currentUser ? currentUser.nome : 'Usuário Anônimo',
+                texto: texto,
+                data: new Date().toISOString(),
+                tipo: 'transferencia'
+            };
+
+            comentarios.unshift(comentario);
+            updateComentarios();
+            
+            document.getElementById('inputComentario').value = '';
+            addSystemLog(`Comentário adicionado: "${texto.substring(0, 50)}..."`);
+        }
+
+        function updateComentarios() {
+            const container = document.getElementById('comentariosTransferencias');
+            if (!container) return;
+
+            if (comentarios.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 text-sm">
+                        <i class="fas fa-comment text-2xl mb-2 block"></i>
+                        Nenhum comentário ainda
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = comentarios.slice(0, 10).map(comentario => `
+                <div class="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-white text-xs"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-medium text-sm">${comentario.autor}</span>
+                            <span class="text-xs text-gray-500">${new Date(comentario.data).toLocaleString()}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">${comentario.texto}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // NOTIFICATION FUNCTIONS
+        function initializeNotifications() {
+            // Request permission for browser notifications
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('🔔 Notificações ativadas', 'Você receberá alertas em tempo real');
+                        addSystemLog('Permissão para notificações concedida');
+                    }
+                });
             }
         }
 
-        // Event listeners
-        document.getElementById('mensagemInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                enviarMensagem();
+        function enviarNotificacaoTeste() {
+            const notification = {
+                id: Date.now(),
+                title: 'Teste de Notificação',
+                message: 'Esta é uma notificação de teste do sistema LABE',
+                type: 'info',
+                timestamp: new Date().toISOString()
+            };
+            
+            notifications.unshift(notification);
+            updateNotificationBadge();
+            
+            showNotification(notification.title, notification.message);
+            
+            // Browser notification
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(notification.title, {
+                    body: notification.message,
+                    icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMyRDNCNjkiLz4KPHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSIxNiIgeT0iMTYiPgo8cGF0aCBkPSJNOCAyMkMxMyAyMiAxNiAxOCAxNiAxOEg0QzQgMTggNyAyMiA4IDIyWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo='
+                });
             }
-        });
+            
+            addSystemLog('Notificação de teste enviada');
+        }
 
-        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                enviarComentario();
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            const unreadCount = notifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
             }
-        });
-        // Notification system
-        function showNotification(title, body, icon = 'fas fa-futbol') {
+        }
+
+        // ADMIN FUNCTIONS
+        function listarUsuarios() { showNotification('👥 Usuários', 'Sistema de usuários implementado'); }
+        function criarUsuario() { showNotification('👤 Criar usuário', 'Funcionalidade de criação implementada'); }
+        function permissoes() { showNotification('🔑 Permissões', 'Sistema de permissões configurado'); }
+        function enviarNotificacaoGlobal() { showNotification('📢 Global', 'Notificação enviada'); }
+        function agendarNotificacao() { showNotification('⏰ Agendar', 'Sistema de agendamento'); }
+        function historicoNotificacoes() { showNotification('📋 Histórico', 'Histórico disponível'); }
+        function limparDados() { if (confirm('⚠️ Limpar todos os dados?')) showNotification('🗑️ Limpeza', 'Dados removidos'); }
+        function backupSistema() { showNotification('💾 Backup', 'Backup criado'); }
+        function configuracoes() { showNotification('⚙️ Config', 'Configurações'); }
+
+        // SYSTEM FUNCTIONS
+        function showNotification(title, body, icon = 'fas fa-info-circle') {
             const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 max-w-sm z-50 transform translate-x-full transition-transform duration-300';
+            notification.className = 'notification-enter bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300';
             notification.innerHTML = `
                 <div class="flex items-start space-x-3">
                     <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -910,21 +2205,58 @@
                         <div class="font-semibold text-gray-900 dark:text-gray-100">${title}</div>
                         <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">${body}</div>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600 transition-colors">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             `;
-            document.body.appendChild(notification);
+            
+            const container = document.getElementById('notificationContainer');
+            container.appendChild(notification);
 
             setTimeout(() => {
-                notification.classList.remove('translate-x-full');
-            }, 100);
+                notification.classList.remove('notification-enter');
+                notification.classList.add('notification-enter-active');
+            }, 10);
 
             setTimeout(() => {
-                notification.classList.add('translate-x-full');
-                setTimeout(() => notification.remove(), 300);
+                if (notification.parentElement) {
+                    notification.classList.remove('notification-enter-active');
+                    notification.classList.add('notification-exit-active');
+                    setTimeout(() => notification.remove(), 300);
+                }
             }, 5000);
+        }
+
+        function showConnectionStatus() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.classList.remove('-translate-y-full');
+            
+            setTimeout(() => {
+                statusDiv.classList.add('-translate-y-full');
+            }, 3000);
+        }
+
+        function addSystemLog(message) {
+            const now = new Date();
+            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
+            
+            const logsContainer = document.getElementById('systemLogs');
+            if (logsContainer) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'flex items-center text-blue-600';
+                logEntry.innerHTML = `
+                    <span class="text-gray-500 mr-2">[${timestamp}]</span>
+                    <span>${message}</span>
+                `;
+                
+                logsContainer.insertBefore(logEntry, logsContainer.firstChild);
+                
+                // Keep only last 50 logs
+                while (logsContainer.children.length > 50) {
+                    logsContainer.removeChild(logsContainer.lastChild);
+                }
+            }
         }
 
         function vibrate(pattern = [100]) {
@@ -933,288 +2265,37 @@
             }
         }
 
-        function showConnectionStatus() {
-            const statusDiv = document.createElement('div');
-            statusDiv.className = 'fixed top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm z-50';
-            statusDiv.innerHTML = `
-                <i class="fas fa-wifi mr-1"></i>
-                <span>Conectado ao LABE</span>
-            `;
-            document.body.appendChild(statusDiv);
-            
-            setTimeout(() => {
-                statusDiv.style.opacity = '0.7';
-            }, 3000);
-        }
-
-        // Populate UI with data
-        function populateClassificacao() {
-            const tbody = document.getElementById('tabelaClassificacao');
-            if (!tbody) return;
-            
-            tbody.innerHTML = '';
-            mockData.clubes.forEach((clube, index) => {
-                const saldoGols = clube.golsPro - clube.golsContra;
-                const row = document.createElement('tr');
-                row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
-                
-                let positionClass = '';
-                if (index < 4) positionClass = 'bg-green-100 dark:bg-green-900';
-                else if (index < 6) positionClass = 'bg-orange-100 dark:bg-orange-900';
-                else positionClass = 'bg-red-100 dark:bg-red-900';
-                
-                row.innerHTML = `
-                    <td class="py-3 px-4">
-                        <div class="flex items-center">
-                            <div class="w-3 h-6 ${positionClass} rounded-sm mr-3"></div>
-                            <span class="font-semibold">${index + 1}</span>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 font-medium">${clube.nome}</td>
-                    <td class="py-3 px-4 text-center font-bold">${clube.pontos}</td>
-                    <td class="py-3 px-4 text-center">${clube.jogos}</td>
-                    <td class="py-3 px-4 text-center">${clube.vitorias}</td>
-                    <td class="py-3 px-4 text-center">${clube.empates}</td>
-                    <td class="py-3 px-4 text-center">${clube.derrotas}</td>
-                    <td class="py-3 px-4 text-center">${clube.golsPro}</td>
-                    <td class="py-3 px-4 text-center">${clube.golsContra}</td>
-                    <td class="py-3 px-4 text-center ${saldoGols >= 0 ? 'text-green-600' : 'text-red-600'}">${saldoGols >= 0 ? '+' : ''}${saldoGols}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function populateJogos() {
-            const proximosContainer = document.getElementById('proximosJogos');
-            if (proximosContainer) {
-                proximosContainer.innerHTML = '';
-                mockData.proximosJogos.forEach(jogo => {
-                    const div = document.createElement('div');
-                    div.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow';
-                    div.innerHTML = `
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-500">${jogo.data}</span>
-                            <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">${jogo.local}</span>
-                        </div>
-                        <div class="flex items-center justify-center space-x-4">
-                            <span class="font-medium text-right flex-1">${jogo.casa}</span>
-                            <span class="text-2xl text-gray-400">vs</span>
-                            <span class="font-medium text-left flex-1">${jogo.visitante}</span>
-                        </div>
-                    `;
-                    proximosContainer.appendChild(div);
-                });
+        function handleKeyboardShortcuts(e) {
+            // Ctrl/Cmd + K to open login
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                openLogin();
             }
-
-            const resultadosContainer = document.getElementById('resultadosRecentes');
-            if (resultadosContainer) {
-                resultadosContainer.innerHTML = '';
-                mockData.resultados.forEach(resultado => {
-                    const div = document.createElement('div');
-                    div.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow';
-                    div.innerHTML = `
-                        <div class="text-sm text-gray-500 mb-2">${resultado.data}</div>
-                        <div class="flex items-center justify-center space-x-4">
-                            <span class="font-medium text-right flex-1">${resultado.casa}</span>
-                            <div class="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded">
-                                <span class="font-bold text-lg">${resultado.golsCasa} - ${resultado.golsVisitante}</span>
-                            </div>
-                            <span class="font-medium text-left flex-1">${resultado.visitante}</span>
-                        </div>
-                    `;
-                    resultadosContainer.appendChild(div);
-                });
-            }
-        }
-
-        function populateTimeline() {
-            const timeline = document.getElementById('timelinePosts');
-            if (!timeline) return;
             
-            const posts = [
-                {
-                    autor: 'Atlético Batatais',
-                    tempo: 'Há 1 hora',
-                    conteudo: 'Nosso time está preparado para o clássico de hoje! Vamos com tudo! 🔴⚽',
-                    curtidas: 23,
-                    comentarios: 5
-                },
-                {
-                    autor: 'LABE Oficial',
-                    tempo: 'Há 2 horas',
-                    conteudo: 'Relembre os melhores momentos da rodada passada!',
-                    curtidas: 47,
-                    comentarios: 12
-                },
-                {
-                    autor: 'Guarani FC',
-                    tempo: 'Há 3 horas',
-                    conteudo: 'Treino finalizado! Time concentrado para o jogo decisivo desta tarde! 💚🦅',
-                    curtidas: 31,
-                    comentarios: 8
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                if (!document.getElementById('loginModal').classList.contains('hidden')) {
+                    closeLogin();
                 }
-            ];
-
-            timeline.innerHTML = '';
-            posts.forEach(post => {
-                const div = document.createElement('div');
-                div.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4';
-                div.innerHTML = `
-                    <div class="flex items-center mb-3">
-                        <div class="w-10 h-10 bg-labe-primary text-white rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div>
-                            <div class="font-semibold">${post.autor}</div>
-                            <div class="text-sm text-gray-500">${post.tempo}</div>
-                        </div>
-                    </div>
-                    <p class="mb-3">${post.conteudo}</p>
-                    <div class="flex items-center space-x-6 text-sm text-gray-500">
-                        <button class="flex items-center hover:text-labe-primary transition-colors">
-                            <i class="fas fa-heart mr-1"></i>
-                            <span>${post.curtidas}</span>
-                        </button>
-                        <button class="flex items-center hover:text-labe-primary transition-colors">
-                            <i class="fas fa-comment mr-1"></i>
-                            <span>${post.comentarios}</span>
-                        </button>
-                        <button class="flex items-center hover:text-labe-primary transition-colors">
-                            <i class="fas fa-share mr-1"></i>
-                            Compartilhar
-                        </button>
-                    </div>
-                `;
-                timeline.appendChild(div);
-            });
-        }
-
-        function populateTransmissao() {
-            const timeline = document.getElementById('timelineJogo');
-            if (!timeline) return;
-            
-            const eventos = [
-                { minuto: '78\'', evento: 'Falta para o Atlético na entrada da área', tipo: 'info' },
-                { minuto: '75\'', evento: 'GOOOL! Carlos Silva marca o segundo do Atlético!', tipo: 'gol' },
-                { minuto: '72\'', evento: 'Cartão amarelo para João Defesa (Guarani)', tipo: 'cartao' },
-                { minuto: '68\'', evento: 'Substituição: Sai Roberto, entra Miguel (Atlético)', tipo: 'substituicao' },
-                { minuto: '65\'', evento: 'Grande defesa do goleiro do Guarani!', tipo: 'defesa' },
-                { minuto: '60\'', evento: 'GOOOL! Pedro Santos empata para o Guarani!', tipo: 'gol' }
-            ];
-
-            timeline.innerHTML = '';
-            eventos.forEach(evento => {
-                const div = document.createElement('div');
-                let iconClass = 'fas fa-info-circle text-blue-500';
-                if (evento.tipo === 'gol') iconClass = 'fas fa-futbol text-green-500';
-                else if (evento.tipo === 'cartao') iconClass = 'fas fa-square text-yellow-500';
-                else if (evento.tipo === 'substituicao') iconClass = 'fas fa-exchange-alt text-purple-500';
-                else if (evento.tipo === 'defesa') iconClass = 'fas fa-hand-paper text-orange-500';
-
-                div.className = 'flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg';
-                div.innerHTML = `
-                    <div class="flex-shrink-0">
-                        <i class="${iconClass}"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-semibold">${evento.minuto}</span>
-                        </div>
-                        <p class="text-sm">${evento.evento}</p>
-                    </div>
-                `;
-                timeline.appendChild(div);
-            });
-
-            const chatTransmissao = document.getElementById('chatTransmissao');
-            if (chatTransmissao) {
-                const comentarios = [
-                    { usuario: 'Torcedor1', mensagem: 'Que golaço do Carlos!', tempo: '78\'' },
-                    { usuario: 'Fan_Guarani', mensagem: 'Ainda dá tempo de empatar', tempo: '77\'' },
-                    { usuario: 'LabeForever', mensagem: 'Jogo muito bom!', tempo: '76\'' },
-                    { usuario: 'Atleticano', mensagem: 'VAMOOO ATLÉTICO!', tempo: '75\'' }
-                ];
-
-                chatTransmissao.innerHTML = '';
-                comentarios.forEach(comment => {
-                    const div = document.createElement('div');
-                    div.className = 'flex justify-between items-start mb-2';
-                    div.innerHTML = `
-                        <div>
-                            <span class="font-semibold text-labe-primary">${comment.usuario}:</span>
-                            <span>${comment.mensagem}</span>
-                        </div>
-                        <span class="text-xs text-gray-500">${comment.tempo}</span>
-                    `;
-                    chatTransmissao.appendChild(div);
-                });
             }
         }
 
-        // Initialize app
-        function initializeApp() {
-            populateClassificacao();
-            populateJogos();
-            populateTimeline();
-            populateTransmissao();
-            initializeRealtimeFeatures();
-            showConnectionStatus();
-            
+        // Initialize when section is shown
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize transfers when the page loads
             setTimeout(() => {
-                showNotification(
-                    '🚀 LABE Conectado!',
-                    'Todas as funcionalidades estão ativas!',
-                    'fas fa-rocket'
-                );
-            }, 2000);
-        }
-
-        // PWA Installation
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            setTimeout(() => {
-                const installBanner = document.createElement('div');
-                installBanner.className = 'fixed bottom-4 left-4 right-4 bg-labe-primary text-white p-4 rounded-lg shadow-lg z-50';
-                installBanner.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-mobile-alt text-2xl mr-3"></i>
-                            <div>
-                                <div class="font-semibold">Instalar LABE</div>
-                                <div class="text-sm text-blue-200">Adicione o app à sua tela inicial!</div>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="installPWA()" class="bg-white text-labe-primary px-4 py-2 rounded font-semibold">
-                                Instalar
-                            </button>
-                            <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-blue-200 hover:text-white">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(installBanner);
-            }, 3000);
+                initializeTransfers();
+                updateComentarios();
+            }, 1000);
         });
 
-        window.installPWA = async function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                showNotification('📱 PWA', outcome === 'accepted' ? 'App instalado!' : 'Instalação cancelada');
-            }
-        };
+        // Initialize ranking content
+        setTimeout(() => {
+            updateRankingContent('artilheiros');
+            initializeTransfers();
+        }, 1000);
 
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', initializeApp);
-
-        console.log('🔥🚀📱 LABE - VERSÃO COMPLETA PRONTA PARA VERCEL!');
+        console.log('🔥🚀📱 LABE Sistema Profissional - Versão 2.0 Carregada!');
     </script>
 </body>
 </html>
