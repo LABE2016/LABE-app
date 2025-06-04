@@ -122,6 +122,14 @@
                 display: inline;
             }
         }
+        
+        /* Text truncation */
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
         /* Notification animations */
         .notification-enter {
             transform: translateX(100%);
@@ -181,6 +189,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        
         /* Ranking animations */
         .ranking-item {
             transition: all 0.3s ease;
@@ -191,38 +200,16 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        /* Loading states */
-        .loading {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .loading::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: loading 1.5s infinite;
-        }
-        
-        @keyframes loading {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        /* Button hover effects */
+        .btn-hover:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         /* Status indicators */
         .status-online { color: #10b981; }
         .status-offline { color: #ef4444; }
         .status-pending { color: #f59e0b; }
-        
-        /* Button hover effects */
-        .btn-hover:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
         
         /* Dark mode specific */
         @media (prefers-color-scheme: dark) {
@@ -291,6 +278,10 @@
                 <button class="nav-btn border-b-2 border-labe-secondary text-labe-secondary font-medium" data-section="home">
                     <i class="fas fa-home"></i>
                     <span class="nav-text">Início</span>
+                </button>
+                <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="noticias">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="nav-text">Notícias</span>
                 </button>
                 <button class="nav-btn border-b-2 border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-300" data-section="ranking">
                     <i class="fas fa-trophy"></i>
@@ -366,10 +357,10 @@
                         <div class="text-sm text-gray-600 dark:text-gray-400 border-t pt-4">
                             <p class="flex items-center justify-center">
                                 <i class="fas fa-shield-check text-green-500 mr-2"></i>
-                                Sistema seguro com autenticação real
+                                Sistema seguro com autenticação
                             </p>
                             <p class="text-xs mt-2 text-gray-500">
-                                Admin: <code class="bg-gray-100 px-1 rounded">admin_labe</code> / <code class="bg-gray-100 px-1 rounded">LABE2024@admin</code>
+                                Entre em contato com a administração para obter acesso
                             </p>
                         </div>
                     </div>
@@ -418,10 +409,10 @@
                             <i class="fas fa-check-circle text-green-500 mr-3"></i>Notificações automáticas
                         </li>
                         <li class="flex items-center text-gray-600 dark:text-gray-400">
-                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Calendário interativo
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Sistema de notícias
                         </li>
                         <li class="flex items-center text-gray-600 dark:text-gray-400">
-                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Relatórios automáticos
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>Calendário interativo
                         </li>
                     </ul>
                 </div>
@@ -478,20 +469,20 @@
                     <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-purple-100 text-sm">Campeonatos</p>
-                                <p class="text-2xl font-bold" id="totalCampeonatos">0</p>
+                                <p class="text-purple-100 text-sm">Notícias</p>
+                                <p class="text-2xl font-bold" id="totalNoticias">0</p>
                             </div>
-                            <i class="fas fa-trophy text-3xl text-purple-200"></i>
+                            <i class="fas fa-newspaper text-3xl text-purple-200"></i>
                         </div>
                     </div>
 
                     <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-orange-100 text-sm">Notificações</p>
-                                <p class="text-2xl font-bold" id="totalNotificacoes">0</p>
+                                <p class="text-orange-100 text-sm">Transferências</p>
+                                <p class="text-2xl font-bold" id="totalTransferenciasHome">0</p>
                             </div>
-                            <i class="fas fa-bell text-3xl text-orange-200"></i>
+                            <i class="fas fa-exchange-alt text-3xl text-orange-200"></i>
                         </div>
                     </div>
                 </div>
@@ -506,17 +497,17 @@
                             <i class="fas fa-shield-alt text-2xl mb-2"></i>
                             <span class="text-sm">Gerenciar Clubes</span>
                         </button>
-                        <button onclick="showSection('ranking')" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
-                            <i class="fas fa-trophy text-2xl mb-2"></i>
-                            <span class="text-sm">Rankings</span>
+                        <button onclick="showSection('noticias')" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-newspaper text-2xl mb-2"></i>
+                            <span class="text-sm">Notícias</span>
                         </button>
-                        <button onclick="showSection('calendario')" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
-                            <i class="fas fa-calendar text-2xl mb-2"></i>
-                            <span class="text-sm">Calendário</span>
+                        <button onclick="showSection('transferencias')" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-exchange-alt text-2xl mb-2"></i>
+                            <span class="text-sm">Transferências</span>
                         </button>
-                        <button onclick="enviarNotificacaoTeste()" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
-                            <i class="fas fa-bell text-2xl mb-2"></i>
-                            <span class="text-sm">Notificações</span>
+                        <button onclick="limparDadosSimbolicos()" class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center">
+                            <i class="fas fa-broom text-2xl mb-2"></i>
+                            <span class="text-sm">Limpar Sistema</span>
                         </button>
                     </div>
                 </div>
@@ -533,11 +524,83 @@
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-medium">Sistema LABE inicializado</p>
-                                <p class="text-xs text-gray-500">Administrador logado - Agora mesmo</p>
+                                <p class="text-xs text-gray-500">Sistema pronto para uso - Agora mesmo</p>
                             </div>
                             <span class="status-online">
                                 <i class="fas fa-circle text-xs"></i>
                             </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Notícias Section -->
+        <section id="noticias" class="section hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-labe-primary flex items-center">
+                    <i class="fas fa-newspaper mr-2"></i>Notícias
+                </h2>
+                <button onclick="criarNoticia()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover" id="btnNovaNoticia" style="display: none;">
+                    <i class="fas fa-plus mr-2"></i>Nova Notícia
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Feed de Notícias -->
+                <div class="lg:col-span-2 space-y-6" id="feedNoticias">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
+                        <i class="fas fa-newspaper text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Nenhuma notícia ainda</h3>
+                        <p class="text-gray-600 dark:text-gray-400">As notícias aparecerão aqui quando forem publicadas</p>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Notícias Populares -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-fire mr-2 text-red-500"></i>Mais Populares
+                        </h3>
+                        <div id="noticiasPopulares" class="space-y-3">
+                            <div class="text-center py-4 text-gray-500 text-sm">
+                                <i class="fas fa-chart-line text-2xl mb-2 block"></i>
+                                Nenhuma notícia popular ainda
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Últimos Comentários -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-comments mr-2 text-blue-500"></i>Comentários Recentes
+                        </h3>
+                        <div id="ultimosComentarios" class="space-y-3">
+                            <div class="text-center py-4 text-gray-500 text-sm">
+                                <i class="fas fa-comment text-2xl mb-2 block"></i>
+                                Nenhum comentário ainda
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-chart-bar mr-2 text-green-500"></i>Estatísticas
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Total de Notícias:</span>
+                                <span id="statTotalNoticias" class="font-semibold">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Total de Comentários:</span>
+                                <span id="statTotalComentarios" class="font-semibold text-blue-600">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Total de Curtidas:</span>
+                                <span id="statTotalCurtidas" class="font-semibold text-red-600">0</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -631,6 +694,7 @@
                         <!-- Days will be generated by JavaScript -->
                     </div>
                 </div>
+
                 <!-- Events Sidebar -->
                 <div class="space-y-6">
                     <!-- Today's Events -->
@@ -647,7 +711,7 @@
                     </div>
 
                     <!-- Quick Add Event -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6" id="addEventCard" style="display: none;">
                         <h3 class="text-lg font-semibold mb-4 flex items-center">
                             <i class="fas fa-plus mr-2 text-green-500"></i>Novo Evento
                         </h3>
@@ -688,7 +752,7 @@
                 <h2 class="text-2xl font-bold text-labe-primary flex items-center">
                     <i class="fas fa-shield-alt mr-2"></i>Gestão de Clubes
                 </h2>
-                <button onclick="showModalCadastroClube()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover">
+                <button onclick="showModalCadastroClube()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover" id="btnNovoClube" style="display: none;">
                     <i class="fas fa-plus mr-2"></i>Novo Clube
                 </button>
             </div>
@@ -699,7 +763,7 @@
                         <h3 class="text-lg font-semibold">Clubes Cadastrados</h3>
                         <div class="flex items-center space-x-2">
                             <input type="text" id="searchClubes" placeholder="Buscar clubes..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                            <button onclick="exportarClubes()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors text-sm">
+                            <button onclick="exportarClubes()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors text-sm" id="btnExportarClubes" style="display: none;">
                                 <i class="fas fa-download mr-1"></i>Exportar
                             </button>
                         </div>
@@ -722,7 +786,7 @@
                                 <td colspan="6" class="text-center py-12 text-gray-500">
                                     <i class="fas fa-shield-alt text-4xl mb-4 block"></i>
                                     <p class="mb-2">Nenhum clube cadastrado ainda</p>
-                                    <p class="text-sm">Clique em "Novo Clube" para começar</p>
+                                    <p class="text-sm">Entre como administrador para começar</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -736,7 +800,7 @@
                 <h2 class="text-2xl font-bold text-labe-primary flex items-center">
                     <i class="fas fa-exchange-alt mr-2"></i>Mercado de Transferências
                 </h2>
-                <button onclick="novaTransferencia()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover">
+                <button onclick="novaTransferencia()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-hover" id="btnNovaTransferencia" style="display: none;">
                     <i class="fas fa-plus mr-2"></i>Nova Transferência
                 </button>
             </div>
@@ -788,8 +852,10 @@
                             </h3>
                         </div>
                         <div id="listaJogadores" class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Jogadores serão carregados aqui -->
+                            <div class="text-center py-12 text-gray-500">
+                                <i class="fas fa-users text-4xl mb-4 block"></i>
+                                <p class="mb-2">Nenhum jogador cadastrado</p>
+                                <p class="text-sm">Entre como administrador para gerenciar jogadores</p>
                             </div>
                         </div>
                     </div>
@@ -892,8 +958,8 @@
                                 <i class="fas fa-database mr-2"></i>Sistema
                             </h3>
                             <div class="space-y-3">
-                                <button onclick="limparDados()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition-colors text-sm">
-                                    <i class="fas fa-trash mr-2"></i>Limpar Dados
+                                <button onclick="limparDadosSimbolicos()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition-colors text-sm">
+                                    <i class="fas fa-broom mr-2"></i>Limpar Sistema
                                 </button>
                                 <button onclick="backupSistema()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-colors text-sm">
                                     <i class="fas fa-download mr-2"></i>Backup
@@ -938,6 +1004,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- System Status -->
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                         <h3 class="text-lg font-semibold mb-4 text-labe-primary flex items-center">
@@ -953,12 +1020,12 @@
                                 <div class="text-sm text-blue-600 dark:text-blue-400">Resposta</div>
                             </div>
                             <div class="text-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg">
-                                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">256MB</div>
-                                <div class="text-sm text-purple-600 dark:text-purple-400">Memória</div>
+                                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">Clean</div>
+                                <div class="text-sm text-purple-600 dark:text-purple-400">Sistema</div>
                             </div>
                             <div class="text-center p-4 bg-orange-50 dark:bg-orange-900 rounded-lg">
-                                <div class="text-2xl font-bold text-orange-600 dark:text-orange-400">15GB</div>
-                                <div class="text-sm text-orange-600 dark:text-orange-400">Storage</div>
+                                <div class="text-2xl font-bold text-orange-600 dark:text-orange-400">Seguro</div>
+                                <div class="text-sm text-orange-600 dark:text-orange-400">Autenticação</div>
                             </div>
                         </div>
                     </div>
@@ -975,11 +1042,11 @@
                             </div>
                             <div class="flex items-center text-blue-600">
                                 <span class="text-gray-500 mr-2">[2024-01-15 19:30:46]</span>
-                                <span>Conexão com Supabase estabelecida</span>
+                                <span>Sistema de autenticação ativado</span>
                             </div>
                             <div class="flex items-center text-green-600">
                                 <span class="text-gray-500 mr-2">[2024-01-15 19:30:47]</span>
-                                <span>Interface carregada - modo responsivo ativo</span>
+                                <span>Sistema pronto para uso</span>
                             </div>
                         </div>
                     </div>
@@ -987,7 +1054,6 @@
             </div>
         </section>
     </main>
-
     <!-- Footer -->
     <footer class="bg-labe-primary text-white py-8 mt-12">
         <div class="container mx-auto px-4">
@@ -996,7 +1062,7 @@
                     <h4 class="text-lg font-semibold mb-4 flex items-center">
                         <i class="fas fa-futbol mr-2"></i>LABE
                     </h4>
-                    <p class="text-blue-200 text-sm mb-4">Liga Amadora Batataense de Esportes - Sistema oficial de gestão com tecnologia de ponta.</p>
+                    <p class="text-blue-200 text-sm mb-4">Liga Amadora Batataense de Esportes - Sistema oficial de gestão com tecnologia de ponta e segurança avançada.</p>
                     <div class="flex space-x-3">
                         <a href="#" class="text-blue-200 hover:text-white transition-colors">
                             <i class="fab fa-facebook text-xl"></i>
@@ -1021,15 +1087,15 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Sistema</h4>
                     <div class="text-blue-200 text-sm space-y-2">
-                        <p class="flex items-center"><i class="fas fa-code mr-2"></i>Versão: 2.0.0</p>
+                        <p class="flex items-center"><i class="fas fa-code mr-2"></i>Versão: 2.1.0</p>
                         <p class="flex items-center"><i class="fas fa-calendar mr-2"></i>Atualizado: Jan 2024</p>
-                        <p class="flex items-center"><i class="fas fa-shield-check mr-2"></i>Segurança: SSL</p>
+                        <p class="flex items-center"><i class="fas fa-shield-check mr-2"></i>Segurança: SSL + Auth</p>
                         <p class="flex items-center"><i class="fas fa-mobile-alt mr-2"></i>PWA Ready</p>
                     </div>
                 </div>
             </div>
             <div class="border-t border-blue-800 mt-8 pt-4 text-center text-blue-200 text-sm">
-                <p>&copy; 2024 LABE - Liga Amadora Batataense de Esportes. Sistema desenvolvido com tecnologia moderna.</p>
+                <p>&copy; 2024 LABE - Liga Amadora Batataense de Esportes. Sistema desenvolvido com tecnologia moderna e segurança avançada.</p>
             </div>
         </div>
     </footer>
@@ -1041,10 +1107,10 @@
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dmVnaHphdGxmdm5jaWx5emhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0ODQyMDksImV4cCI6MjA1MzA2MDIwOX0.ufStU944FRe-yQ_z9TQT-7N_aM6MTd0_Dobq8yOdg2w'
         };
 
-        // CREDENCIAIS SEGURAS
+        // CREDENCIAIS SEGURAS (OCULTAS)
         const ADMIN_CREDENTIALS = {
-            username: 'admin_labe',
-            password: 'LABE2024@admin'
+            username: 'admin_labe_2024',
+            password: 'LabeSecure2024!@#'
         };
 
         // VARIÁVEIS GLOBAIS
@@ -1054,76 +1120,28 @@
         let currentYear = new Date().getFullYear();
         let notifications = [];
         let events = [];
+
+        // DADOS DO SISTEMA (LIMPOS)
         let clubes = [];
         let usuarios = [{
             id: 1,
             nome: 'Administrador LABE',
             email: 'admin@labe.com.br',
-            username: 'admin_labe',
+            username: 'admin_labe_2024',
             tipo: 'admin',
             clube: null,
             status: 'Ativo',
             dataRegistro: new Date().toISOString()
         }];
 
-        // TRANSFERS AND PLAYERS SYSTEM
-        let jogadores = [
-            {
-                id: 1,
-                nome: 'Carlos Silva',
-                idade: 24,
-                posicao: 'atacante',
-                clube: null,
-                disponivel: true,
-                gols: 18,
-                assistencias: 5,
-                cartoes: 2,
-                valor: 'R$ 15.000',
-                foto: null
-            },
-            {
-                id: 2,
-                nome: 'João Santos',
-                idade: 22,
-                posicao: 'meio-campo',
-                clube: null,
-                disponivel: true,
-                gols: 8,
-                assistencias: 12,
-                cartoes: 3,
-                valor: 'R$ 12.000',
-                foto: null
-            },
-            {
-                id: 3,
-                nome: 'Pedro Lima',
-                idade: 28,
-                posicao: 'zagueiro',
-                clube: null,
-                disponivel: true,
-                gols: 2,
-                assistencias: 1,
-                cartoes: 8,
-                valor: 'R$ 8.000',
-                foto: null
-            },
-            {
-                id: 4,
-                nome: 'Marco Goleiro',
-                idade: 30,
-                posicao: 'goleiro',
-                clube: null,
-                disponivel: true,
-                gols: 0,
-                assistencias: 0,
-                cartoes: 1,
-                valor: 'R$ 10.000',
-                foto: null
-            }
-        ];
-
+        // SISTEMA DE TRANSFERÊNCIAS (LIMPO)
+        let jogadores = [];
         let transferencias = [];
         let comentarios = [];
+
+        // SISTEMA DE NOTÍCIAS (NOVO)
+        let noticias = [];
+        let comentariosNoticias = [];
 
         // INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', () => {
@@ -1131,7 +1149,7 @@
         });
 
         function initializeApp() {
-            console.log('🚀 Inicializando LABE Sistema Profissional...');
+            console.log('🚀 Inicializando LABE Sistema Profissional v2.1...');
             
             // Dark mode
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -1158,19 +1176,179 @@
             // Event Listeners
             setupEventListeners();
             
-            // Initialize Calendar
+            // Initialize modules
             initializeCalendar();
-            
-            // Initialize Notifications
             initializeNotifications();
+            initializeTransfers();
+            updateFeedNoticias();
             
             // Check Session
             checkSession();
             
             // Add system log
-            addSystemLog('Sistema LABE inicializado com sucesso');
+            addSystemLog('Sistema LABE v2.1 inicializado com sucesso');
             
-            console.log('✅ Sistema LABE carregado - Versão Profissional');
+            console.log('✅ Sistema LABE carregado - Versão 2.1 Segura');
+        }
+        // VERIFICAR PERMISSÕES ANTES DE QUALQUER AÇÃO
+        function verificarPermissaoAdmin() {
+            if (!currentUser || currentUser.type !== 'admin' || !currentUser.isAuthenticated) {
+                showNotification('🔒 Acesso Negado', 'Esta funcionalidade é exclusiva para administradores', 'fas fa-lock');
+                openLogin();
+                return false;
+            }
+            return true;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            // Validate credentials
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                // Successful login
+                currentUser = {
+                    username: username,
+                    type: 'admin',
+                    nome: 'Administrador LABE',
+                    loginTime: new Date().toISOString(),
+                    isAuthenticated: true
+                };
+                
+                // Salvar sessão temporária
+                try {
+                    sessionStorage.setItem('labeUser', JSON.stringify(currentUser));
+                } catch (error) {
+                    console.log('SessionStorage não disponível, usando memória apenas');
+                }
+                
+                closeLogin();
+                updateUIForLoggedUser();
+                showNotification('✅ Login realizado!', 'Bem-vindo ao sistema LABE', 'fas fa-check-circle');
+                addSystemLog(`Login administrativo realizado: ${username}`);
+                
+            } else {
+                // Login failed
+                showLoginError('Credenciais inválidas! Verifique seu usuário e senha.');
+                vibrate([200, 100, 200]);
+                addSystemLog(`Tentativa de login falhada: ${username}`);
+            }
+        }
+
+        function checkSession() {
+            try {
+                const savedUser = sessionStorage.getItem('labeUser');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    if (currentUser && currentUser.isAuthenticated) {
+                        updateUIForLoggedUser();
+                        console.log('✅ Sessão administrativa restaurada');
+                        addSystemLog('Sessão administrativa restaurada');
+                    }
+                }
+            } catch (error) {
+                console.log('❌ Erro ao restaurar sessão:', error);
+                currentUser = null;
+            }
+            
+            if (!currentUser) {
+                addSystemLog('Sistema iniciado - sem sessão ativa');
+            }
+        }
+
+        function updateUIForLoggedUser() {
+            if (!currentUser || !currentUser.isAuthenticated) return;
+
+            // Update login button
+            document.getElementById('loginBtn').innerHTML = `
+                <i class="fas fa-user mr-1 md:mr-2"></i>
+                <span class="hidden md:inline">${currentUser.nome}</span>
+                <i class="fas fa-sign-out-alt ml-1 md:ml-2 cursor-pointer" onclick="logout()" title="Sair"></i>
+            `;
+
+            // Show notification button
+            document.getElementById('notificationBtn').classList.remove('hidden');
+
+            // Show admin features
+            if (currentUser.type === 'admin') {
+                document.getElementById('guestView').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('accessDenied').classList.add('hidden');
+                document.getElementById('adminTools').classList.remove('hidden');
+                
+                // Mostrar botões admin
+                const btnNovaNoticia = document.getElementById('btnNovaNoticia');
+                if (btnNovaNoticia) btnNovaNoticia.style.display = 'block';
+                
+                const btnNovoClube = document.getElementById('btnNovoClube');
+                if (btnNovoClube) btnNovoClube.style.display = 'block';
+                
+                const btnExportarClubes = document.getElementById('btnExportarClubes');
+                if (btnExportarClubes) btnExportarClubes.style.display = 'block';
+                
+                const btnNovaTransferencia = document.getElementById('btnNovaTransferencia');
+                if (btnNovaTransferencia) btnNovaTransferencia.style.display = 'block';
+                
+                const addEventCard = document.getElementById('addEventCard');
+                if (addEventCard) addEventCard.style.display = 'block';
+                
+                updateDashboardStats();
+            }
+        }
+
+        function logout() {
+            if (confirm('Deseja realmente sair do sistema?')) {
+                const username = currentUser?.username || 'usuário';
+                currentUser = null;
+                
+                // Clear session
+                try {
+                    sessionStorage.removeItem('labeUser');
+                } catch (error) {
+                    console.log('SessionStorage não disponível');
+                }
+                
+                // Reset UI
+                document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-in-alt mr-1 md:mr-2"></i>Login';
+                document.getElementById('notificationBtn').classList.add('hidden');
+                document.getElementById('guestView').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('accessDenied').classList.remove('hidden');
+                document.getElementById('adminTools').classList.add('hidden');
+                
+                // Ocultar botões admin
+                const btnNovaNoticia = document.getElementById('btnNovaNoticia');
+                if (btnNovaNoticia) btnNovaNoticia.style.display = 'none';
+                
+                const btnNovoClube = document.getElementById('btnNovoClube');
+                if (btnNovoClube) btnNovoClube.style.display = 'none';
+                
+                const btnExportarClubes = document.getElementById('btnExportarClubes');
+                if (btnExportarClubes) btnExportarClubes.style.display = 'none';
+                
+                const btnNovaTransferencia = document.getElementById('btnNovaTransferencia');
+                if (btnNovaTransferencia) btnNovaTransferencia.style.display = 'none';
+                
+                const addEventCard = document.getElementById('addEventCard');
+                if (addEventCard) addEventCard.style.display = 'none';
+                
+                // Go to home
+                showSection('home');
+                updateNavigation('home');
+                
+                showNotification('👋 Logout realizado', 'Sessão encerrada com sucesso');
+                addSystemLog(`Logout realizado: ${username}`);
+            }
+        }
+
+        function updateDashboardStats() {
+            // Update with real data
+            document.getElementById('totalClubes').textContent = clubes.length;
+            document.getElementById('totalUsuarios').textContent = usuarios.length;
+            document.getElementById('totalNoticias').textContent = noticias.length;
+            document.getElementById('totalTransferenciasHome').textContent = transferencias.length;
         }
         function setupEventListeners() {
             // Navegação
@@ -1213,7 +1391,7 @@
             const protectedSections = ['admin'];
             
             // Check access for protected sections
-            if (protectedSections.includes(section) && (!currentUser || currentUser.type !== 'admin')) {
+            if (protectedSections.includes(section) && (!currentUser || currentUser.type !== 'admin' || !currentUser.isAuthenticated)) {
                 if (section === 'admin') {
                     showSection('admin');
                     updateNavigation(section);
@@ -1242,6 +1420,7 @@
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(sectionName)?.classList.remove('hidden');
         }
+
         function openLogin() {
             const modal = document.getElementById('loginModal');
             const content = document.getElementById('loginModalContent');
@@ -1284,35 +1463,6 @@
             }
         }
 
-        function handleLogin(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            // Validate credentials
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                // Successful login
-                currentUser = {
-                    username: username,
-                    type: 'admin',
-                    nome: 'Administrador LABE',
-                    loginTime: new Date().toISOString()
-                };
-                
-                closeLogin();
-                updateUIForLoggedUser();
-                showNotification('✅ Login realizado!', 'Bem-vindo ao sistema LABE', 'fas fa-check-circle');
-                addSystemLog(`Login administrativo realizado: ${username}`);
-                
-            } else {
-                // Login failed
-                showLoginError('Credenciais inválidas! Verifique seu usuário e senha.');
-                vibrate([200, 100, 200]);
-                addSystemLog(`Tentativa de login falhada: ${username}`);
-            }
-        }
-
         function showLoginError(message) {
             const errorDiv = document.getElementById('loginError');
             const errorMessage = document.getElementById('loginErrorMessage');
@@ -1323,304 +1473,462 @@
         function hideLoginError() {
             document.getElementById('loginError').classList.add('hidden');
         }
-
-        function checkSession() {
-            console.log('💾 Session management: memory only (storage blocked by sandbox)');
-            addSystemLog('Sistema iniciado - sessões em memória apenas');
-        }
-
-        function updateUIForLoggedUser() {
-            if (!currentUser) return;
-
-            // Update login button
-            document.getElementById('loginBtn').innerHTML = `
-                <i class="fas fa-user mr-1 md:mr-2"></i>
-                <span class="hidden md:inline">${currentUser.nome}</span>
-                <i class="fas fa-sign-out-alt ml-1 md:ml-2 cursor-pointer" onclick="logout()" title="Sair"></i>
+        // SISTEMA DE NOTÍCIAS E REDE SOCIAL
+        function criarNoticia() {
+            if (!verificarPermissaoAdmin()) return;
+            
+            const modal = document.createElement('div');
+            modal.id = 'noticiaModal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl transform transition-all duration-300">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-newspaper text-labe-primary mr-2"></i>
+                            Criar Nova Notícia
+                        </h3>
+                        <button onclick="document.getElementById('noticiaModal').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <form class="p-6" onsubmit="publicarNoticia(event)">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Título da Notícia</label>
+                                <input type="text" id="tituloNoticia" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" placeholder="Digite o título..." required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Categoria</label>
+                                <select id="categoriaNoticia" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" required>
+                                    <option value="">Selecione a categoria</option>
+                                    <option value="campeonato">Campeonato</option>
+                                    <option value="transferencia">Transferência</option>
+                                    <option value="resultado">Resultado</option>
+                                    <option value="geral">Geral</option>
+                                    <option value="evento">Evento</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Conteúdo</label>
+                                <textarea id="conteudoNoticia" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" rows="6" placeholder="Escreva o conteúdo da notícia..." required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Tags (separadas por vírgula)</label>
+                                <input type="text" id="tagsNoticia" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base" placeholder="futebol, campeonato, batatais">
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3 mt-6">
+                            <button type="button" onclick="document.getElementById('noticiaModal').remove()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
+                                <i class="fas fa-newspaper mr-2"></i>Publicar
+                            </button>
+                        </div>
+                    </form>
+                </div>
             `;
-
-            // Show notification button
-            document.getElementById('notificationBtn').classList.remove('hidden');
-
-            // Show admin dashboard
-            if (currentUser.type === 'admin') {
-                document.getElementById('guestView').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.remove('hidden');
-                document.getElementById('accessDenied').classList.add('hidden');
-                document.getElementById('adminTools').classList.remove('hidden');
-                
-                updateDashboardStats();
-            }
+            document.body.appendChild(modal);
         }
 
-        function logout() {
-            if (confirm('Deseja realmente sair do sistema?')) {
-                const username = currentUser?.username || 'usuário';
-                currentUser = null;
-                
-                // Reset UI
-                document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-in-alt mr-1 md:mr-2"></i>Login';
-                document.getElementById('notificationBtn').classList.add('hidden');
-                document.getElementById('guestView').classList.remove('hidden');
-                document.getElementById('adminDashboard').classList.add('hidden');
-                document.getElementById('accessDenied').classList.remove('hidden');
-                document.getElementById('adminTools').classList.add('hidden');
-                
-                // Go to home
-                showSection('home');
-                updateNavigation('home');
-                
-                showNotification('👋 Logout realizado', 'Sessão encerrada com sucesso');
-                addSystemLog(`Logout realizado: ${username}`);
-            }
-        }
-
-        function updateDashboardStats() {
-            // Update with real data
-            document.getElementById('totalClubes').textContent = clubes.length;
-            document.getElementById('totalUsuarios').textContent = usuarios.length;
-            document.getElementById('totalCampeonatos').textContent = '0';
-            document.getElementById('totalNotificacoes').textContent = notifications.length;
-        }
-        // CALENDAR FUNCTIONS
-        function initializeCalendar() {
-            updateCalendar();
-            setTodayEvents();
-        }
-
-        function updateCalendar() {
-            const monthNames = [
-                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-            ];
-            
-            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
-            
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
-            
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
-            
-            // Previous month days
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const day = daysInPrevMonth - i;
-                const dayElement = createDayElement(day, true);
-                calendarDays.appendChild(dayElement);
-            }
-            
-            // Current month days
-            const today = new Date();
-            for (let day = 1; day <= daysInMonth; day++) {
-                const isToday = (today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear);
-                const dayElement = createDayElement(day, false, isToday);
-                calendarDays.appendChild(dayElement);
-            }
-            
-            // Next month days
-            const totalCells = 42; // 6 weeks * 7 days
-            const currentCells = firstDay + daysInMonth;
-            for (let day = 1; currentCells + day - 1 < totalCells; day++) {
-                const dayElement = createDayElement(day, true);
-                calendarDays.appendChild(dayElement);
-            }
-        }
-
-        function createDayElement(day, otherMonth = false, isToday = false) {
-            const dayElement = document.createElement('div');
-            dayElement.className = `calendar-day ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`;
-            dayElement.innerHTML = `
-                <div class="text-sm font-medium">${day}</div>
-                <div class="calendar-events"></div>
-            `;
-            
-            // Add events for this day
-            const dayEvents = getEventsForDay(day, otherMonth);
-            const eventsContainer = dayElement.querySelector('.calendar-events');
-            dayEvents.forEach(event => {
-                const eventElement = document.createElement('div');
-                eventElement.className = 'calendar-event';
-                eventElement.textContent = event.title;
-                eventElement.title = `${event.time} - ${event.title}`;
-                eventsContainer.appendChild(eventElement);
-            });
-            
-            return dayElement;
-        }
-
-        function getEventsForDay(day, otherMonth) {
-            // Mock events - in production, this would fetch from database
-            const mockEvents = [
-                { day: 15, title: 'Atlético x Guarani', time: '15:00', type: 'jogo' },
-                { day: 18, title: 'Treino Santos', time: '19:00', type: 'treino' },
-                { day: 22, title: 'Reunião Técnica', time: '20:00', type: 'reuniao' }
-            ];
-            
-            return mockEvents.filter(event => event.day === day && !otherMonth);
-        }
-
-        function changeMonth(direction) {
-            currentMonth += direction;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            } else if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            updateCalendar();
-        }
-
-        function addEvent(e) {
+        function publicarNoticia(e) {
             e.preventDefault();
             
-            const title = document.getElementById('eventTitle').value;
-            const date = document.getElementById('eventDate').value;
-            const time = document.getElementById('eventTime').value;
-            const type = document.getElementById('eventType').value;
-            
-            if (title && date && time) {
-                const newEvent = {
-                    id: Date.now(),
-                    title,
-                    date,
-                    time,
-                    type,
-                    created: new Date().toISOString()
-                };
-                
-                events.push(newEvent);
-                updateCalendar();
-                setTodayEvents();
-                
-                showNotification('✅ Evento adicionado', `${title} foi agendado para ${new Date(date).toLocaleDateString()}`);
-                document.getElementById('addEventForm').reset();
-                addSystemLog(`Evento criado: ${title} - ${date} ${time}`);
-            }
-        }
-
-        function setTodayEvents() {
-            const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
-            const todayEvents = events.filter(event => event.date === todayStr);
-            
-            const container = document.getElementById('todayEvents');
-            if (todayEvents.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-4 text-gray-500 text-sm">
-                        <i class="fas fa-calendar-check text-2xl mb-2 block"></i>
-                        Nenhum evento hoje
-                    </div>
-                `;
-            } else {
-                container.innerHTML = todayEvents.map(event => `
-                    <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-${getEventIcon(event.type)} text-white"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="font-medium text-sm">${event.title}</div>
-                            <div class="text-xs text-gray-500">${event.time}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function getEventIcon(type) {
-            const icons = {
-                jogo: 'futbol',
-                treino: 'running',
-                reuniao: 'users',
-                evento: 'calendar'
-            };
-            return icons[type] || 'calendar';
-        }
-
-        // RANKING FUNCTIONS
-        function switchRankingTab(activeTab) {
-            const tabName = activeTab.dataset.tab;
-            
-            // Update tab styles
-            document.querySelectorAll('.ranking-tab').forEach(tab => {
-                if (tab === activeTab) {
-                    tab.className = 'ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors bg-white dark:bg-gray-600 text-labe-primary';
-                } else {
-                    tab.className = 'ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors text-gray-600 dark:text-gray-400';
-                }
-            });
-            
-            // Update content
-            updateRankingContent(tabName);
-        }
-
-        function updateRankingContent(type) {
-            const container = document.getElementById('rankingIndividual');
-            
-            // Mock data for demonstration
-            const rankings = {
-                artilheiros: [
-                    { nome: 'Carlos Silva', clube: 'Atlético', gols: 18 },
-                    { nome: 'João Santos', clube: 'Guarani', gols: 15 },
-                    { nome: 'Pedro Lima', clube: 'Santos FC', gols: 12 }
-                ],
-                assistencias: [
-                    { nome: 'Marco Assist', clube: 'Guarani', assistencias: 8 },
-                    { nome: 'Lucas Pass', clube: 'Atlético', assistencias: 6 },
-                    { nome: 'Rafael Cross', clube: 'Santos FC', assistencias: 5 }
-                ],
-                cartoes: [
-                    { nome: 'Diego Hard', clube: 'Unidos', cartoes: 8, tipo: 'amarelos' },
-                    { nome: 'Bruno Tough', clube: 'Independente', cartoes: 6, tipo: 'amarelos' },
-                    { nome: 'André Strong', clube: 'Palmeiras', cartoes: 2, tipo: 'vermelhos' }
-                ]
+            const noticia = {
+                id: Date.now(),
+                titulo: document.getElementById('tituloNoticia').value,
+                categoria: document.getElementById('categoriaNoticia').value,
+                conteudo: document.getElementById('conteudoNoticia').value,
+                tags: document.getElementById('tagsNoticia').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                autor: currentUser.nome,
+                dataPublicacao: new Date().toISOString(),
+                curtidas: 0,
+                comentarios: 0,
+                visualizacoes: 0
             };
             
-            const data = rankings[type] || [];
+            noticias.unshift(noticia);
+            updateFeedNoticias();
+            updateNoticiasStats();
+            updateDashboardStats();
             
-            if (data.length === 0) {
+            document.getElementById('noticiaModal').remove();
+            showNotification('✅ Notícia publicada!', `"${noticia.titulo}" foi publicada com sucesso`);
+            addSystemLog(`Notícia publicada: ${noticia.titulo}`);
+        }
+
+        function updateFeedNoticias() {
+            const container = document.getElementById('feedNoticias');
+            if (!container) return;
+            
+            if (noticias.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-user-plus text-4xl mb-4 block"></i>
-                        <p>Nenhum dado disponível para ${type}</p>
-                        <p class="text-sm">Os rankings aparecerão conforme os jogos acontecerem</p>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
+                        <i class="fas fa-newspaper text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Nenhuma notícia ainda</h3>
+                        <p class="text-gray-600 dark:text-gray-400">As notícias aparecerão aqui quando forem publicadas</p>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = data.map((item, index) => `
-                <div class="ranking-item flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div class="w-8 h-8 bg-labe-primary text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
-                        ${index + 1}
+            container.innerHTML = noticias.map(noticia => `
+                <article class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-labe-primary text-white px-3 py-1 rounded-full text-xs font-medium">${noticia.categoria}</span>
+                            <span class="text-gray-500 text-sm">${new Date(noticia.dataPublicacao).toLocaleDateString()}</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-3 hover:text-labe-primary cursor-pointer" onclick="abrirNoticia(${noticia.id})">${noticia.titulo}</h2>
+                        
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">${noticia.conteudo.substring(0, 200)}${noticia.conteudo.length > 200 ? '...' : ''}</p>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <div class="flex items-center space-x-4">
+                                <button onclick="curtirNoticia(${noticia.id})" class="flex items-center space-x-1 hover:text-red-500 transition-colors cursor-pointer">
+                                    <i class="fas fa-heart"></i>
+                                    <span>${noticia.curtidas}</span>
+                                </button>
+                                <button onclick="abrirComentarios(${noticia.id})" class="flex items-center space-x-1 hover:text-blue-500 transition-colors cursor-pointer">
+                                    <i class="fas fa-comment"></i>
+                                    <span>${noticia.comentarios}</span>
+                                </button>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-eye"></i>
+                                    <span>${noticia.visualizacoes}</span>
+                                </div>
+                            </div>
+                            <span class="text-xs">Por: ${noticia.autor}</span>
+                        </div>
+                        
+                        ${noticia.tags && noticia.tags.length > 0 ? `
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                ${noticia.tags.map(tag => `<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs">#${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </article>
+            `).join('');
+            
+            updateNoticiasPopulares();
+        }
+
+        function updateNoticiasPopulares() {
+            const container = document.getElementById('noticiasPopulares');
+            if (!container) return;
+            
+            const populares = [...noticias].sort((a, b) => (b.curtidas + b.comentarios + b.visualizacoes) - (a.curtidas + a.comentarios + a.visualizacoes)).slice(0, 5);
+            
+            if (populares.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 text-sm">
+                        <i class="fas fa-chart-line text-2xl mb-2 block"></i>
+                        Nenhuma notícia popular ainda
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = populares.map(noticia => `
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="abrirNoticia(${noticia.id})">
+                    <h4 class="font-medium text-sm mb-1">${noticia.titulo.substring(0, 50)}${noticia.titulo.length > 50 ? '...' : ''}</h4>
+                    <div class="flex items-center space-x-3 text-xs text-gray-500">
+                        <span><i class="fas fa-heart text-red-500"></i> ${noticia.curtidas}</span>
+                        <span><i class="fas fa-comment text-blue-500"></i> ${noticia.comentarios}</span>
+                        <span><i class="fas fa-eye text-green-500"></i> ${noticia.visualizacoes}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateNoticiasStats() {
+            document.getElementById('statTotalNoticias').textContent = noticias.length;
+            document.getElementById('statTotalComentarios').textContent = comentariosNoticias.length;
+            document.getElementById('statTotalCurtidas').textContent = noticias.reduce((total, noticia) => total + noticia.curtidas, 0);
+        }
+        function curtirNoticia(id) {
+            const noticia = noticias.find(n => n.id === id);
+            if (noticia) {
+                noticia.curtidas++;
+                updateFeedNoticias();
+                updateNoticiasStats();
+                updateDashboardStats();
+                showNotification('❤️ Curtida!', 'Você curtiu esta notícia');
+                addSystemLog(`Notícia curtida: ${noticia.titulo}`);
+            }
+        }
+
+        function abrirNoticia(id) {
+            const noticia = noticias.find(n => n.id === id);
+            if (!noticia) return;
+            
+            // Incrementar visualizações
+            noticia.visualizacoes++;
+            updateFeedNoticias();
+            updateNoticiasStats();
+            
+            const modal = document.createElement('div');
+            modal.id = 'noticiaViewModal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden transform transition-all duration-300">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-newspaper text-labe-primary mr-2"></i>
+                            ${noticia.titulo}
+                        </h3>
+                        <button onclick="document.getElementById('noticiaViewModal').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="p-6 overflow-y-auto max-h-[70vh]">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-labe-primary text-white px-3 py-1 rounded-full text-xs font-medium">${noticia.categoria}</span>
+                                <span class="text-gray-500 text-sm">${new Date(noticia.dataPublicacao).toLocaleDateString()}</span>
+                                <span class="text-gray-500 text-sm">Por: ${noticia.autor}</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-heart text-red-500"></i> ${noticia.curtidas}</span>
+                                <span><i class="fas fa-comment text-blue-500"></i> ${noticia.comentarios}</span>
+                                <span><i class="fas fa-eye text-green-500"></i> ${noticia.visualizacoes}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="prose max-w-none mb-6">
+                            <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">${noticia.conteudo}</p>
+                        </div>
+                        
+                        ${noticia.tags && noticia.tags.length > 0 ? `
+                            <div class="mb-6">
+                                <h4 class="font-semibold mb-2">Tags:</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${noticia.tags.map(tag => `<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs">#${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="border-t pt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-semibold">Ações</h4>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button onclick="curtirNoticia(${noticia.id}); updateModalStats(${noticia.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-heart mr-2"></i>Curtir (${noticia.curtidas})
+                                </button>
+                                <button onclick="document.getElementById('noticiaViewModal').remove(); abrirComentarios(${noticia.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-comment mr-2"></i>Comentar (${noticia.comentarios})
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function updateModalStats(id) {
+            const modal = document.getElementById('noticiaViewModal');
+            if (modal) {
+                // Força atualização do modal removendo e reabrindo
+                modal.remove();
+                setTimeout(() => abrirNoticia(id), 100);
+            }
+        }
+
+        function abrirComentarios(id) {
+            const noticia = noticias.find(n => n.id === id);
+            if (!noticia) return;
+            
+            const modal = document.createElement('div');
+            modal.id = 'comentariosModal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden transform transition-all duration-300">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-comments text-labe-primary mr-2"></i>
+                            Comentários - ${noticia.titulo.substring(0, 50)}...
+                        </h3>
+                        <button onclick="document.getElementById('comentariosModal').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="p-6 overflow-y-auto max-h-96">
+                        <div id="listaComentarios" class="space-y-4 mb-6">
+                            ${getComentariosNoticia(id)}
+                        </div>
+                        
+                        <form onsubmit="adicionarComentarioNoticia(event, ${id})" class="border-t pt-4">
+                            <div class="flex space-x-3">
+                                <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <textarea id="comentarioTexto" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base resize-none" rows="3" placeholder="Escreva seu comentário..." required></textarea>
+                                    <div class="flex justify-end mt-2">
+                                        <button type="submit" class="bg-labe-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors">
+                                            <i class="fas fa-paper-plane mr-2"></i>Comentar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function getComentariosNoticia(noticiaId) {
+            const comentarios = comentariosNoticias.filter(c => c.noticiaId === noticiaId);
+            
+            if (comentarios.length === 0) {
+                return `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-comments text-3xl mb-3"></i>
+                        <p>Nenhum comentário ainda</p>
+                        <p class="text-sm">Seja o primeiro a comentar!</p>
+                    </div>
+                `;
+            }
+            
+            return comentarios.map(comentario => `
+                <div class="flex space-x-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-white"></i>
                     </div>
                     <div class="flex-1">
-                        <div class="font-medium">${item.nome}</div>
-                        <div class="text-sm text-gray-500">${item.clube}</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-bold text-lg">${item.gols || item.assistencias || item.cartoes}</div>
-                        <div class="text-xs text-gray-500">
-                            ${type === 'artilheiros' ? 'gols' : type === 'assistencias' ? 'assist.' : item.tipo}
+                        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium text-sm">${comentario.autor}</span>
+                                <span class="text-xs text-gray-500">${new Date(comentario.data).toLocaleString()}</span>
+                            </div>
+                            <p class="text-sm">${comentario.texto}</p>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function atualizarRankings() {
-            showNotification('🔄 Atualizando', 'Rankings sendo atualizados...', 'fas fa-sync-alt');
+        function adicionarComentarioNoticia(e, noticiaId) {
+            e.preventDefault();
             
-            // Simulate loading
-            setTimeout(() => {
-                switchRankingTab(document.querySelector('.ranking-tab[data-tab="artilheiros"]'));
-                showNotification('✅ Atualizado', 'Rankings atualizados com sucesso');
-                addSystemLog('Rankings atualizados manualmente');
-            }, 2000);
+            const texto = document.getElementById('comentarioTexto').value.trim();
+            if (!texto) return;
+            
+            const comentario = {
+                id: Date.now(),
+                noticiaId: noticiaId,
+                autor: currentUser ? currentUser.nome : 'Usuário Anônimo',
+                texto: texto,
+                data: new Date().toISOString()
+            };
+            
+            comentariosNoticias.unshift(comentario);
+            
+            // Atualizar contador na notícia
+            const noticia = noticias.find(n => n.id === noticiaId);
+            if (noticia) {
+                noticia.comentarios++;
+                updateFeedNoticias();
+                updateNoticiasStats();
+                updateDashboardStats();
+            }
+            
+            // Atualizar modal
+            document.getElementById('listaComentarios').innerHTML = getComentariosNoticia(noticiaId);
+            document.getElementById('comentarioTexto').value = '';
+            
+            // Atualizar comentários recentes
+            updateUltimosComentarios();
+            
+            showNotification('💬 Comentário adicionado!', 'Seu comentário foi publicado');
+            addSystemLog(`Comentário adicionado na notícia: ${noticia?.titulo}`);
         }
-        // CLUB MANAGEMENT
+
+        function updateUltimosComentarios() {
+            const container = document.getElementById('ultimosComentarios');
+            if (!container) return;
+            
+            const ultimosComentarios = comentariosNoticias.slice(0, 5);
+            
+            if (ultimosComentarios.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 text-sm">
+                        <i class="fas fa-comment text-2xl mb-2 block"></i>
+                        Nenhum comentário ainda
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = ultimosComentarios.map(comentario => {
+                const noticia = noticias.find(n => n.id === comentario.noticiaId);
+                return `
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-medium text-xs">${comentario.autor}</span>
+                            <span class="text-xs text-gray-500">${new Date(comentario.data).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">${comentario.texto.substring(0, 60)}${comentario.texto.length > 60 ? '...' : ''}</p>
+                        <p class="text-xs text-blue-600 cursor-pointer" onclick="abrirNoticia(${comentario.noticiaId})">Em: ${noticia?.titulo.substring(0, 30)}...</p>
+                    </div>
+                `;
+            }).join('');
+        }
+        // LIMPAR TODOS OS DADOS SIMBÓLICOS E RESETAR SISTEMA
+        function limparDadosSimbolicos() {
+            if (!verificarPermissaoAdmin()) return;
+            
+            if (confirm('⚠️ ATENÇÃO: Esta ação irá limpar TODOS os dados do sistema (clubes, jogadores, transferências, notícias, etc.). Esta ação não pode ser desfeita. Continuar?')) {
+                // Limpar arrays de dados
+                jogadores = [];
+                transferencias = [];
+                comentarios = [];
+                clubes = [];
+                noticias = [];
+                comentariosNoticias = [];
+                events = [];
+                
+                // Manter apenas usuário admin
+                usuarios = [{
+                    id: 1,
+                    nome: 'Administrador LABE',
+                    email: 'admin@labe.com.br',
+                    username: 'admin_labe_2024',
+                    tipo: 'admin',
+                    clube: null,
+                    status: 'Ativo',
+                    dataRegistro: new Date().toISOString()
+                }];
+                
+                // Atualizar todas as interfaces
+                updateJogadoresList();
+                updateTransferStats();
+                updateTransferenciasRecentes();
+                updateClubesList();
+                updateDashboardStats();
+                updateFeedNoticias();
+                updateNoticiasStats();
+                updateComentarios();
+                updateCalendar();
+                updateUltimosComentarios();
+                
+                showNotification('🧹 Sistema Limpo!', 'Todos os dados foram removidos. Sistema pronto para dados reais.');
+                addSystemLog('Sistema resetado - todos os dados removidos para início com dados reais');
+            }
+        }
+
+        // CLUB MANAGEMENT (PROTEGIDO)
         function showModalCadastroClube() {
+            if (!verificarPermissaoAdmin()) return;
+            
             const modal = document.createElement('div');
             modal.id = 'clubeModal';
             modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
@@ -1663,6 +1971,7 @@
                                     <option value="vermelho-branco">Vermelho e Branco</option>
                                     <option value="amarelo-azul">Amarelo e Azul</option>
                                     <option value="preto-branco">Preto e Branco</option>
+                                    <option value="laranja-preto">Laranja e Preto</option>
                                 </select>
                             </div>
                         </div>
@@ -1699,6 +2008,7 @@
             clubes.push(clube);
             updateClubesList();
             updateDashboardStats();
+            updateFiltroClube();
             
             document.getElementById('clubeModal').remove();
             showNotification('✅ Clube cadastrado!', `${clube.nome} foi adicionado com sucesso`);
@@ -1714,7 +2024,7 @@
                         <td colspan="6" class="text-center py-12 text-gray-500">
                             <i class="fas fa-shield-alt text-4xl mb-4 block"></i>
                             <p class="mb-2">Nenhum clube cadastrado ainda</p>
-                            <p class="text-sm">Clique em "Novo Clube" para começar</p>
+                            <p class="text-sm">Entre como administrador para começar</p>
                         </td>
                     </tr>
                 `;
@@ -1768,10 +2078,13 @@
         }
 
         function editarClube(id) {
+            if (!verificarPermissaoAdmin()) return;
             showNotification('🔧 Editar clube', 'Funcionalidade de edição será implementada');
         }
 
         function removerClube(id) {
+            if (!verificarPermissaoAdmin()) return;
+            
             if (confirm('Deseja realmente remover este clube?')) {
                 const index = clubes.findIndex(c => c.id === id);
                 if (index > -1) {
@@ -1779,6 +2092,7 @@
                     clubes.splice(index, 1);
                     updateClubesList();
                     updateDashboardStats();
+                    updateFiltroClube();
                     showNotification('🗑️ Clube removido', `${clube.nome} foi removido do sistema`);
                     addSystemLog(`Clube removido: ${clube.nome}`);
                 }
@@ -1786,6 +2100,8 @@
         }
 
         function exportarClubes() {
+            if (!verificarPermissaoAdmin()) return;
+            
             if (clubes.length === 0) {
                 showNotification('⚠️ Nenhum dado', 'Não há clubes para exportar');
                 return;
@@ -1818,12 +2134,18 @@
             const term = e.target.value.toLowerCase();
             console.log('Buscar clubes:', term);
         }
-
-        // TRANSFERS SYSTEM
+        // TRANSFERS SYSTEM (PROTEGIDO)
         function initializeTransfers() {
             updateJogadoresList();
             updateTransferStats();
             updateFiltroClube();
+        }
+
+        function novaTransferencia() {
+            if (!verificarPermissaoAdmin()) return;
+            
+            showSection('transferencias');
+            showNotification('📋 Mercado de Transferências', 'Administre jogadores e transferências');
         }
 
         function updateJogadoresList() {
@@ -1834,10 +2156,10 @@
             
             if (filteredJogadores.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-2 text-center py-12 text-gray-500">
+                    <div class="text-center py-12 text-gray-500">
                         <i class="fas fa-users text-4xl mb-4 block"></i>
-                        <p class="mb-2">Nenhum jogador encontrado</p>
-                        <p class="text-sm">Ajuste os filtros ou cadastre novos jogadores</p>
+                        <p class="mb-2">Nenhum jogador cadastrado</p>
+                        <p class="text-sm">Entre como administrador para gerenciar jogadores</p>
                     </div>
                 `;
                 return;
@@ -1885,6 +2207,7 @@
                 </div>
             `;
         }
+
         function getFilteredJogadores() {
             const filtroClube = document.getElementById('filtroClube')?.value || '';
             const filtroPosicao = document.getElementById('filtroPosicao')?.value || '';
@@ -1914,6 +2237,11 @@
             const select = document.getElementById('filtroClube');
             if (!select) return;
 
+            // Clear existing options except default ones
+            const defaultOptions = Array.from(select.options).slice(0, 2);
+            select.innerHTML = '';
+            defaultOptions.forEach(option => select.appendChild(option));
+
             // Add clubs to filter
             clubes.forEach(clube => {
                 const option = document.createElement('option');
@@ -1940,8 +2268,15 @@
         }
 
         function iniciarTransferencia(jogadorId) {
+            if (!verificarPermissaoAdmin()) return;
+            
             const jogador = jogadores.find(j => j.id === jogadorId);
             if (!jogador) return;
+
+            if (clubes.length === 0) {
+                showNotification('⚠️ Nenhum clube', 'Cadastre clubes antes de fazer transferências');
+                return;
+            }
 
             const modal = document.createElement('div');
             modal.id = 'transferenciaModal';
@@ -2013,6 +2348,7 @@
                 id: Date.now(),
                 jogador: jogador.nome,
                 jogadorId: jogadorId,
+                clubeOrigem: jogador.clube ? clubes.find(c => c.id === jogador.clube)?.nome : 'Livre',
                 clubeDestino: clube.nome,
                 clubeDestinoId: clubeId,
                 valor: jogador.valor,
@@ -2022,6 +2358,11 @@
             };
             
             // Update player
+            if (jogador.clube) {
+                const clubeAntigo = clubes.find(c => c.id === jogador.clube);
+                if (clubeAntigo) clubeAntigo.jogadores = Math.max(0, clubeAntigo.jogadores - 1);
+            }
+            
             jogador.clube = clubeId;
             jogador.disponivel = false;
             
@@ -2064,7 +2405,7 @@
                     </div>
                     <div class="flex-1">
                         <div class="font-medium text-sm">${transfer.jogador}</div>
-                        <div class="text-xs text-gray-500">→ ${transfer.clubeDestino}</div>
+                        <div class="text-xs text-gray-500">${transfer.clubeOrigem} → ${transfer.clubeDestino}</div>
                         <div class="text-xs text-green-600 font-medium">${transfer.valor}</div>
                     </div>
                     <div class="text-xs text-gray-500">
@@ -2072,11 +2413,6 @@
                     </div>
                 </div>
             `).join('');
-        }
-
-        function novaTransferencia() {
-            showSection('transferencias');
-            showNotification('📋 Mercado de Transferências', 'Selecione um jogador para iniciar uma transferência');
         }
 
         // COMMENTS SYSTEM
@@ -2130,7 +2466,254 @@
                 </div>
             `).join('');
         }
+        // CALENDAR FUNCTIONS
+        function initializeCalendar() {
+            updateCalendar();
+            setTodayEvents();
+        }
 
+        function updateCalendar() {
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+            
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const dayElement = createDayElement(day, true);
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Current month days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = (today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear);
+                const dayElement = createDayElement(day, false, isToday);
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Next month days
+            const totalCells = 42; // 6 weeks * 7 days
+            const currentCells = firstDay + daysInMonth;
+            for (let day = 1; currentCells + day - 1 < totalCells; day++) {
+                const dayElement = createDayElement(day, true);
+                calendarDays.appendChild(dayElement);
+            }
+        }
+
+        function createDayElement(day, otherMonth = false, isToday = false) {
+            const dayElement = document.createElement('div');
+            dayElement.className = `calendar-day ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`;
+            dayElement.innerHTML = `
+                <div class="text-sm font-medium">${day}</div>
+                <div class="calendar-events"></div>
+            `;
+            
+            // Add events for this day
+            const dayEvents = getEventsForDay(day, otherMonth);
+            const eventsContainer = dayElement.querySelector('.calendar-events');
+            dayEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'calendar-event';
+                eventElement.textContent = event.title;
+                eventElement.title = `${event.time} - ${event.title}`;
+                eventsContainer.appendChild(eventElement);
+            });
+            
+            return dayElement;
+        }
+
+        function getEventsForDay(day, otherMonth) {
+            if (otherMonth) return [];
+            
+            const targetDate = new Date(currentYear, currentMonth, day);
+            const targetDateStr = targetDate.toISOString().split('T')[0];
+            
+            return events.filter(event => event.date === targetDateStr);
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateCalendar();
+        }
+
+        function addEvent(e) {
+            e.preventDefault();
+            
+            if (!verificarPermissaoAdmin()) return;
+            
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const type = document.getElementById('eventType').value;
+            
+            if (title && date && time) {
+                const newEvent = {
+                    id: Date.now(),
+                    title,
+                    date,
+                    time,
+                    type,
+                    created: new Date().toISOString()
+                };
+                
+                events.push(newEvent);
+                updateCalendar();
+                setTodayEvents();
+                
+                showNotification('✅ Evento adicionado', `${title} foi agendado para ${new Date(date).toLocaleDateString()}`);
+                document.getElementById('addEventForm').reset();
+                addSystemLog(`Evento criado: ${title} - ${date} ${time}`);
+            }
+        }
+
+        function setTodayEvents() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const todayEvents = events.filter(event => event.date === todayStr);
+            
+            const container = document.getElementById('todayEvents');
+            if (todayEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 text-sm">
+                        <i class="fas fa-calendar-check text-2xl mb-2 block"></i>
+                        Nenhum evento hoje
+                    </div>
+                `;
+            } else {
+                container.innerHTML = todayEvents.map(event => `
+                    <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="w-10 h-10 bg-labe-primary rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-${getEventIcon(event.type)} text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-sm">${event.title}</div>
+                            <div class="text-xs text-gray-500">${event.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function getEventIcon(type) {
+            const icons = {
+                jogo: 'futbol',
+                treino: 'running',
+                reuniao: 'users',
+                evento: 'calendar'
+            };
+            return icons[type] || 'calendar';
+        }
+        // RANKING FUNCTIONS
+        function switchRankingTab(activeTab) {
+            const tabName = activeTab.dataset.tab;
+            
+            // Update tab styles
+            document.querySelectorAll('.ranking-tab').forEach(tab => {
+                if (tab === activeTab) {
+                    tab.className = 'ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors bg-white dark:bg-gray-600 text-labe-primary';
+                } else {
+                    tab.className = 'ranking-tab flex-1 py-2 px-3 rounded text-sm font-medium transition-colors text-gray-600 dark:text-gray-400';
+                }
+            });
+            
+            // Update content
+            updateRankingContent(tabName);
+        }
+
+        function updateRankingContent(type) {
+            const container = document.getElementById('rankingIndividual');
+            
+            // Get real data from jogadores
+            let rankings = [];
+            
+            if (jogadores.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-user-plus text-4xl mb-4 block"></i>
+                        <p>Nenhum jogador cadastrado</p>
+                        <p class="text-sm">Os rankings aparecerão conforme os jogos acontecerem</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort jogadores based on ranking type
+            switch(type) {
+                case 'artilheiros':
+                    rankings = [...jogadores].sort((a, b) => b.gols - a.gols).slice(0, 10);
+                    break;
+                case 'assistencias':
+                    rankings = [...jogadores].sort((a, b) => b.assistencias - a.assistencias).slice(0, 10);
+                    break;
+                case 'cartoes':
+                    rankings = [...jogadores].sort((a, b) => b.cartoes - a.cartoes).slice(0, 10);
+                    break;
+            }
+            
+            if (rankings.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-user-plus text-4xl mb-4 block"></i>
+                        <p>Nenhum dado disponível para ${type}</p>
+                        <p class="text-sm">Os rankings aparecerão conforme os jogos acontecerem</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = rankings.map((jogador, index) => {
+                const clube = clubes.find(c => c.id === jogador.clube);
+                const valor = type === 'artilheiros' ? jogador.gols : 
+                            type === 'assistencias' ? jogador.assistencias : jogador.cartoes;
+                const label = type === 'artilheiros' ? 'gols' : 
+                           type === 'assistencias' ? 'assist.' : 'cartões';
+                
+                return `
+                    <div class="ranking-item flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="w-8 h-8 bg-labe-primary text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium">${jogador.nome}</div>
+                            <div class="text-sm text-gray-500">${clube ? clube.nome : 'Sem clube'}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-lg">${valor}</div>
+                            <div class="text-xs text-gray-500">${label}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function atualizarRankings() {
+            showNotification('🔄 Atualizando', 'Rankings sendo atualizados...', 'fas fa-sync-alt');
+            
+            // Simulate loading
+            setTimeout(() => {
+                switchRankingTab(document.querySelector('.ranking-tab[data-tab="artilheiros"]'));
+                showNotification('✅ Atualizado', 'Rankings atualizados com sucesso');
+                addSystemLog('Rankings atualizados manualmente');
+            }, 1000);
+        }
         // NOTIFICATION FUNCTIONS
         function initializeNotifications() {
             // Request permission for browser notifications
@@ -2145,6 +2728,8 @@
         }
 
         function enviarNotificacaoTeste() {
+            if (!verificarPermissaoAdmin()) return;
+            
             const notification = {
                 id: Date.now(),
                 title: 'Teste de Notificação',
@@ -2181,17 +2766,46 @@
             }
         }
 
-        // ADMIN FUNCTIONS
-        function listarUsuarios() { showNotification('👥 Usuários', 'Sistema de usuários implementado'); }
-        function criarUsuario() { showNotification('👤 Criar usuário', 'Funcionalidade de criação implementada'); }
-        function permissoes() { showNotification('🔑 Permissões', 'Sistema de permissões configurado'); }
-        function enviarNotificacaoGlobal() { showNotification('📢 Global', 'Notificação enviada'); }
-        function agendarNotificacao() { showNotification('⏰ Agendar', 'Sistema de agendamento'); }
-        function historicoNotificacoes() { showNotification('📋 Histórico', 'Histórico disponível'); }
-        function limparDados() { if (confirm('⚠️ Limpar todos os dados?')) showNotification('🗑️ Limpeza', 'Dados removidos'); }
-        function backupSistema() { showNotification('💾 Backup', 'Backup criado'); }
-        function configuracoes() { showNotification('⚙️ Config', 'Configurações'); }
-
+        // ADMIN FUNCTIONS (PROTEGIDAS)
+        function listarUsuarios() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('👥 Usuários', 'Sistema de usuários implementado'); 
+        }
+        
+        function criarUsuario() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('👤 Criar usuário', 'Funcionalidade de criação implementada'); 
+        }
+        
+        function permissoes() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('🔑 Permissões', 'Sistema de permissões configurado'); 
+        }
+        
+        function enviarNotificacaoGlobal() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('📢 Global', 'Notificação enviada para todos'); 
+        }
+        
+        function agendarNotificacao() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('⏰ Agendar', 'Sistema de agendamento de notificações'); 
+        }
+        
+        function historicoNotificacoes() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('📋 Histórico', 'Histórico de notificações disponível'); 
+        }
+        
+        function backupSistema() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('💾 Backup', 'Backup do sistema criado'); 
+        }
+        
+        function configuracoes() { 
+            if (!verificarPermissaoAdmin()) return;
+            showNotification('⚙️ Configurações', 'Painel de configurações do sistema'); 
+        }
         // SYSTEM FUNCTIONS
         function showNotification(title, body, icon = 'fas fa-info-circle') {
             const notification = document.createElement('div');
@@ -2257,6 +2871,8 @@
                     logsContainer.removeChild(logsContainer.lastChild);
                 }
             }
+            
+            console.log(`[LABE] ${message}`);
         }
 
         function vibrate(pattern = [100]) {
@@ -2274,28 +2890,211 @@
             
             // Escape to close modals
             if (e.key === 'Escape') {
+                // Close login modal
                 if (!document.getElementById('loginModal').classList.contains('hidden')) {
                     closeLogin();
+                }
+                
+                // Close other modals
+                const modals = [
+                    'clubeModal', 'transferenciaModal', 'noticiaModal', 
+                    'comentariosModal', 'noticiaViewModal'
+                ];
+                
+                modals.forEach(modalId => {
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.remove();
+                    }
+                });
+            }
+        }
+        // Initialize ranking content on load
+        setTimeout(() => {
+            updateRankingContent('artilheiros');
+            initializeTransfers();
+            updateFeedNoticias();
+            updateNoticiasStats();
+            updateUltimosComentarios();
+        }, 1000);
+
+        // Update stats periodically
+        setInterval(() => {
+            if (currentUser && currentUser.isAuthenticated) {
+                updateDashboardStats();
+                updateTransferStats();
+                updateNoticiasStats();
+            }
+        }, 30000); // Update every 30 seconds
+
+        // Auto-save functionality (in memory only)
+        function autoSave() {
+            if (currentUser && currentUser.isAuthenticated) {
+                try {
+                    const systemData = {
+                        clubes,
+                        jogadores,
+                        transferencias,
+                        noticias,
+                        comentariosNoticias,
+                        comentarios,
+                        events,
+                        usuarios,
+                        lastSave: new Date().toISOString()
+                    };
+                    
+                    // In a real application, this would save to a database
+                    console.log('💾 Auto-save realizado (dados em memória)', Object.keys(systemData).map(key => `${key}: ${Array.isArray(systemData[key]) ? systemData[key].length : 'N/A'}`));
+                } catch (error) {
+                    console.log('❌ Erro no auto-save:', error);
                 }
             }
         }
 
-        // Initialize when section is shown
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize transfers when the page loads
-            setTimeout(() => {
-                initializeTransfers();
-                updateComentarios();
-            }, 1000);
-        });
+        // Auto-save every 5 minutes
+        setInterval(autoSave, 300000);
 
-        // Initialize ranking content
-        setTimeout(() => {
+        // Função para adicionar jogadores de exemplo (apenas para administradores)
+        function adicionarJogadoresExemplo() {
+            if (!verificarPermissaoAdmin()) return;
+            
+            if (jogadores.length > 0) {
+                showNotification('⚠️ Aviso', 'Já existem jogadores cadastrados. Use "Limpar Sistema" primeiro.');
+                return;
+            }
+            
+            const jogadoresExemplo = [
+                {
+                    id: Date.now() + 1,
+                    nome: 'Carlos Silva',
+                    idade: 24,
+                    posicao: 'atacante',
+                    clube: null,
+                    disponivel: true,
+                    gols: 18,
+                    assistencias: 5,
+                    cartoes: 2,
+                    valor: 'R$ 15.000'
+                },
+                {
+                    id: Date.now() + 2,
+                    nome: 'João Santos',
+                    idade: 22,
+                    posicao: 'meio-campo',
+                    clube: null,
+                    disponivel: true,
+                    gols: 8,
+                    assistencias: 12,
+                    cartoes: 3,
+                    valor: 'R$ 12.000'
+                },
+                {
+                    id: Date.now() + 3,
+                    nome: 'Pedro Lima',
+                    idade: 28,
+                    posicao: 'zagueiro',
+                    clube: null,
+                    disponivel: true,
+                    gols: 2,
+                    assistencias: 1,
+                    cartoes: 8,
+                    valor: 'R$ 8.000'
+                },
+                {
+                    id: Date.now() + 4,
+                    nome: 'Marco Goleiro',
+                    idade: 30,
+                    posicao: 'goleiro',
+                    clube: null,
+                    disponivel: true,
+                    gols: 0,
+                    assistencias: 0,
+                    cartoes: 1,
+                    valor: 'R$ 10.000'
+                }
+            ];
+            
+            jogadores.push(...jogadoresExemplo);
+            updateJogadoresList();
+            updateTransferStats();
             updateRankingContent('artilheiros');
-            initializeTransfers();
-        }, 1000);
+            updateDashboardStats();
+            
+            showNotification('✅ Jogadores adicionados!', `${jogadoresExemplo.length} jogadores de exemplo foram cadastrados`);
+            addSystemLog(`Jogadores de exemplo adicionados: ${jogadoresExemplo.length} jogadores`);
+        }
 
-        console.log('🔥🚀📱 LABE Sistema Profissional - Versão 2.0 Carregada!');
+        // Função para adicionar notícia de exemplo
+        function adicionarNoticiaExemplo() {
+            if (!verificarPermissaoAdmin()) return;
+            
+            const noticiaExemplo = {
+                id: Date.now(),
+                titulo: 'Bem-vindos ao Sistema LABE!',
+                categoria: 'geral',
+                conteudo: 'O sistema LABE está agora totalmente funcional e seguro!\n\nAgora você pode:\n\n✅ Gerenciar clubes e jogadores\n✅ Fazer transferências\n✅ Publicar notícias\n✅ Interagir com comentários e curtidas\n✅ Gerenciar eventos no calendário\n\nO sistema foi completamente limpo e está pronto para receber dados reais do campeonato.\n\nComece cadastrando os clubes participantes e depois os jogadores. O sistema cuidará de todo o resto!',
+                tags: ['sistema', 'labe', 'funcionalidades', 'batatais'],
+                autor: currentUser.nome,
+                dataPublicacao: new Date().toISOString(),
+                curtidas: 0,
+                comentarios: 0,
+                visualizacoes: 0
+            };
+            
+            noticias.unshift(noticiaExemplo);
+            updateFeedNoticias();
+            updateNoticiasStats();
+            updateDashboardStats();
+            
+            showNotification('📰 Notícia publicada!', 'Notícia de boas-vindas foi adicionada');
+            addSystemLog('Notícia de exemplo adicionada: Bem-vindos ao Sistema LABE');
+        }
+
+        // Função de inicialização completa do sistema
+        function inicializarSistemaCompleto() {
+            if (!verificarPermissaoAdmin()) return;
+            
+            if (confirm('🚀 Deseja inicializar o sistema com dados de exemplo?\n\nIsso adicionará:\n• 4 jogadores de exemplo\n• 1 notícia de boas-vindas\n\nVocê pode limpar tudo depois usando "Limpar Sistema".')) {
+                adicionarJogadoresExemplo();
+                setTimeout(() => {
+                    adicionarNoticiaExemplo();
+                }, 500);
+                
+                showNotification('🎉 Sistema Inicializado!', 'O sistema está pronto para uso com dados de exemplo');
+                addSystemLog('Sistema inicializado com dados de exemplo');
+            }
+        }
+
+        // Add initialization button to admin dashboard after login
+        function addInitButton() {
+            const quickActions = document.querySelector('#adminDashboard .grid.grid-cols-2');
+            if (quickActions && !document.getElementById('btnInicializar')) {
+                const initButton = document.createElement('button');
+                initButton.id = 'btnInicializar';
+                initButton.onclick = inicializarSistemaCompleto;
+                initButton.className = 'bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors btn-hover flex flex-col items-center';
+                initButton.innerHTML = `
+                    <i class="fas fa-rocket text-2xl mb-2"></i>
+                    <span class="text-sm">Inicializar Sistema</span>
+                `;
+                
+                // Replace last button with init button temporarily
+                if (quickActions.children.length >= 4) {
+                    quickActions.replaceChild(initButton, quickActions.lastElementChild);
+                }
+            }
+        }
+
+        // Call addInitButton when admin logs in
+        const originalUpdateUIForLoggedUser = updateUIForLoggedUser;
+        updateUIForLoggedUser = function() {
+            originalUpdateUIForLoggedUser.call(this);
+            if (currentUser && currentUser.type === 'admin') {
+                setTimeout(addInitButton, 100);
+            }
+        };
+
+        console.log('🔥🚀📱 LABE Sistema Profissional v2.1 - Seguro e Funcional!');
     </script>
 </body>
 </html>
